@@ -1,0 +1,16 @@
+<div>
+    <h4 class="event-path-header">
+        <span class="input-group input-group-lg">
+            <span class="input-group-addon">
+                <a href="#/ns">namespace</a> / {{Namespace}} /
+            </span>
+            <input type="text" class="form-control" ng-model="eventTypeSearch">
+            <span class="input-group-addon">{{EventTypes.length}}</span>
+        </span>
+    </h4>
+    <div style="padding-left:10px;padding-right:10px;">
+        <div class="list-group">
+            <a ng-repeat="eventType in EventTypes|filter:eventTypeSearch" href="#/ns/{{Namespace}}/{{eventType}}" class="list-group-item">{{eventType}}</a>
+        </div>
+    <div style="padding-left:10px;padding-right:10px;">
+</div>

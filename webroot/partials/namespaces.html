@@ -1,0 +1,14 @@
+<div>
+    <h4 class="event-path-header">
+        <span class="input-group input-group-lg">
+            <span class="input-group-addon">namespace</span>
+            <input type="text" class="form-control" ng-model="namespaceSearch">
+            <span class="input-group-addon">{{Namespaces.length}}</span>
+        </span>
+    </h4>
+    <div style="padding-left:10px;padding-right:10px;">
+        <div class="list-group">
+            <a ng-repeat="namespace in Namespaces|filter:namespaceSearch" class="list-group-item" href="#/ns/{{namespace}}">{{namespace}}</a>
+        </div>
+    </div>
+</div>

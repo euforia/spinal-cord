@@ -1,0 +1,62 @@
+<div>
+    <h4 class="event-path-header">
+        <span>
+            <a href="#/ns">namespace</a> / <a href="#/ns/{{Namespace}}">{{Namespace}}</a> / {{EventType}}<sub id="event-sample-btn" data-target="#event-sample" data-toggle="modal" title="View sample event"><span class="glyphicon glyphicon-map-marker" style="padding-left:10px;padding-right:10px;"></span></sub>
+        </span>
+    </h4>
+    <div>
+        <div class="row" style="padding:0;margin:0;">
+            <div class="col-md-3" style="padding:0;padding-bottom:20px;">
+                <div id="handler-list-container">
+                    <div class="evt-detail-section">
+                        <div class="input-group">
+                            <span class="input-group-addon">Handlers</span>
+                            <input type="text" class="form-control" ng-model="handlerSearch">
+                        </div>
+                    </div>
+                    <div class="list-group handlers">
+                        <a href="javascript:void(0)" ng-repeat="handler in Details.handlers|filter:handlerSearch" class="list-group-item" ng-click="fetchHandlerData(handler)">
+                            <div>{{handler.name}}</div>
+                            <div class="handler-sha1">{{handler.sha1}}</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9" style="padding-right:0;padding-bottom:20px;">
+                <div id="handler-editor-container">
+                    <div id="handler-editor-header" class="row">
+                        <div class="col-md-4 text-left" style="padding:0">
+                            <span><b>{{selectedHandler.name|formattedHandlerName}}</span>
+                        </div>
+                        <div class="col-md-6 text-left" style="padding:0">
+                            <span>{{selectedHandler.sha1|formattedSha1}}</span></span>
+                        </div>
+                        <div class="col-md-2 text-right" style="padding:0">
+                            <!--<span class="glyphicon glyphicon-pencil"></span>-->
+                            <span class="pull-right">{{selectedHandler.language|formattedLanguage}}</span>
+                        </div>
+                    </div>
+                    <div id="handler-editor" ng-model="selectedHandler.content" handler-editor style="display:none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="event-sample">
+      <div class="modal-dialog">
+        <div class="modal-content" style="background:rgba(60,60,60,0.6)">
+            <div class="modal-header" style="border-color: #428bca;">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" style="color:#428bca"><b>{{Namespace}} : {{EventType}}</b></h4>
+            </div>
+            <div class="modal-body">
+                <pre class="code-block event">{{Details.sample|json:pretty}}</pre>
+            </div>
+          <div class="modal-footer" style="border-color: #428bca">
+            <button type="button" class="btn btn-default event-close" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
