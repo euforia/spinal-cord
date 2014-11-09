@@ -29,7 +29,7 @@ nurv
 
 Example 1::
 
-    nurv -type amqp -namespace openstack -uri="amqp://guest:guestpass@app.stack.dev1.cloudsys.tmcs:5672" -queue="my.local.dev.info" -routing-key="notifications.info" -bind-to="keystone,nova,neutron"
+    nurv -type amqp -namespace openstack -uri="amqp://guest:guest@rmq.open.stack.server.org:5672" -queue="my.local.dev.info" -routing-key="notifications.info" -bind-to="keystone,nova,neutron"
 
 Example 2::
 
