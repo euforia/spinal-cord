@@ -43,9 +43,14 @@ func InitFlags(logger *logging.Logger) {
     if err != nil {
         logger.Error.Fatal(err)
     }
+
     if *HANDLERS_DIR == "" {
         flag.PrintDefaults()
         logger.Error.Fatal("Handler directory required! (-handlers-dir)")
+    }
+    _, err = os.Stat(*HANDLERS_DIR)
+    if err != nil {
+        logger.Error.Fatalf("Could not open handlers directory: '%s'; Reason: %s\n", *HANDLERS_DIR, err)
     }
 
     pHostP := strings.Split(*PSUB_LISTEN_URI, ":")
@@ -59,7 +64,7 @@ func InitFlags(logger *logging.Logger) {
     if *WEBROOT != "" {
         _, err := os.Stat(*WEBROOT)
         if err != nil {
-            logger.Error.Fatalf("Could not open webroot: %s; Reason: %s\n", *WEBROOT, err)
+            logger.Error.Fatalf("Could not open webroot: '%s'; Reason: %s\n", *WEBROOT, err)
         }
     }
 }
