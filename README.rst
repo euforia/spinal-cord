@@ -9,7 +9,7 @@ spinal-cord
 
 Server
 ------
-The server is responsible for aggregating all input events via PUSH/PULL or REQ/REP and triggering/tasking workers to execute the appropriate handlers based on the fired event.
+The server is responsible for aggregating all input events via *PUSH/PULL* or *REQ/REP* and triggering/tasking workers to execute the appropriate handlers based on the fired event.
 
 Example::
 
@@ -27,10 +27,14 @@ Example::
 nurv
 ====
 
-Example 1::
+Example *PUSH/PULL*::
 
-    nurv -type amqp -namespace openstack -uri="amqp://guest:guest@rmq.open.stack.server.org:5672" -queue="my.local.dev.info" -routing-key="notifications.info" -bind-to="keystone,nova,neutron"
+    nurv -type amqp -namespace openstack \
+        -uri="amqp://guest:guest@rmq.open.stack.server.org:5672" \
+        -queue="my.local.dev.info" \
+        -routing-key="notifications.info" \
+        -bind-to="keystone,nova,neutron"
 
-Example 2::
+Example *REQ/REP*::
 
     nurv -type reqp -event-type zmq.test -namespace local -data '{"client":"nurv"}'
