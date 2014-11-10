@@ -13,7 +13,11 @@ import (
     "time"
     zmq "github.com/pebbe/zmq3"
 )
+
+const VERSION string = "0.0.1"
+
 var (
+    SHOW_VERSION = flag.Bool("version", false, "Show version")
     NURV_TYPE    = flag.String("type", "amqp", "Type of input. Options - amqp|reqp")
 
     REQP_CONNECT_URI = flag.String("task-server-uri", "tcp://localhost:55055", "REQP URI to task server")
@@ -136,6 +140,11 @@ func fireEvent(logger *logging.Logger) {
 
 func Init(logger *logging.Logger) {
     flag.Parse()
+
+    if *SHOW_VERSION {
+        fmt.Println(VERSION)
+        os.Exit(0)
+    }
 
     logger.SetLogLevel(*LOGLEVEL)
 

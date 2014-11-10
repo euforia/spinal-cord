@@ -15,7 +15,10 @@ import(
     "github.com/euforia/spinal-cord/web"
 )
 
+const VERSION string = "0.0.1"
+
 var (
+    SHOW_VERSION = flag.Bool("version", false, "Show version")
     // worker connection to task server //
     WORKER           = flag.Bool("worker", false, "Start worker")
     TASK_CONNECT_URI = flag.String("task-server-uri", "tcp://127.0.0.1:44444", "Worker connection to task server")
@@ -38,6 +41,11 @@ var (
 
 func InitFlags(logger *logging.Logger) {
     flag.Parse()
+
+    if *SHOW_VERSION {
+        fmt.Println(VERSION)
+        os.Exit(0)
+    }
 
     err := logger.SetLogLevel(*LOGLEVEL)
     if err != nil {
