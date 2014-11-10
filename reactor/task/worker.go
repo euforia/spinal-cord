@@ -51,7 +51,7 @@ func (tw *TaskWorker) startReceivingWork(ch chan Task) {
             tw.logger.Warning.Println(err)
             continue
         }
-        tw.logger.Info.Printf("Received task: %v\n", recvTask)
+        tw.logger.Debug.Printf("Received task: %v\n", recvTask)
         tw.logger.Info.Printf("Queueing - handler: %s...\n", recvTask.TaskHandler.Path)
         ch <- recvTask
     }
