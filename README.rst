@@ -38,3 +38,5 @@ Example *PUSH/PULL*::
 Example *REQ/REP*::
 
     nurv -type reqp -event-type zmq.test -namespace local -data '{"client":"nurv"}'
+
+**Note**: cross compilation is currently not supported due to 'go' not support CGO_ENABLED=1

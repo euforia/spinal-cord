@@ -2,6 +2,7 @@ package inputs
 
 import(
     "encoding/json"
+    "fmt"
     "github.com/euforia/spinal-cord/logging"
     "github.com/euforia/spinal-cord/reactor/revent"
     "time"
@@ -51,6 +52,12 @@ func (b *InputService) CheckMessage(message string) (string, error) {
     err := json.Unmarshal([]byte(message), &event)
     if err != nil {
         return "", err
+    }
+    if event.Namespace == "" {
+        return "", fmt.Errorf("Namespace required!")
+    }
+    if event.Type == "" {
+        return "", fmt.Errorf("Event - 'Type' required!")
     }
     if event.Timestamp == nil {
         b.Logger.Trace.Printf("%s - Adding timestamp to: %s\n", b.sockType, message)
