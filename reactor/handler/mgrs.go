@@ -89,7 +89,7 @@ func (hm *HandlersManager) CheckSampleEvent(evt revent.Event) {
     if hm.fileExists(filepath) {
         return
     }
-    err := evt.WriteToFile(filepath, 0777)
+    err := evt.WriteToFile(filepath, 0755)
     if err != nil {
         hm.logger.Error.Println("Could not write sample event:", err)
     }
