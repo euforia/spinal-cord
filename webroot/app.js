@@ -1,6 +1,7 @@
 
 var app = angular.module('app', [
 	'ngRoute',
+	'ngAnimate',
 	'appDirectives',
 	'appFactories',
 	'appControllers',
@@ -28,7 +29,7 @@ app.config(['$routeProvider',
 			})
 			.when('/ns/:Namespace/:EventType/:Handler', {
 				templateUrl: 'partials/eventTypeDetails.html',
-				controller: 'eventTypeDetailsController'
+				controller: 'eventTypeDetailsController',
 			})
 			.otherwise({
 				redirectTo: '/login'

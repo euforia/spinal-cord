@@ -8,6 +8,7 @@ appDirectives.directive('handlerEditor', [function() {
 		link: function(scope, elem, attrs, ctrl) {
 			if(!ctrl) return;
 
+            var jElem;
 			var editor;
 			var langMap = {
 			Language: function(handlerName) {
@@ -44,13 +45,16 @@ appDirectives.directive('handlerEditor', [function() {
 					editor.setValue(scope.selectedHandler.content);
 					editor.setReadOnly(true);
 					editor.gotoLine(editor.session.getLength());
-					$(elem).fadeIn();
+					jElem.fadeIn();
 				} else {
             		console.log("Could not determind handler language! Not loading editor!");
 				}
 			}
 
 			function init() {
+                jElem = $(elem);
+                jElem.hide();
+
 				if(elem.length > 1) {
 					console.warn("can only initialize 1 editor per session");
 				}

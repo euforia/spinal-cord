@@ -1,26 +1,19 @@
 
 var appControllers = angular.module('appControllers', []);
 
-appControllers.controller('defaultController', [ '$window', '$location', '$scope',
-	function($window, $location, $scope) {
+appControllers.controller('defaultController', [ '$window', '$location', '$scope','Authenticator',
+	function($window, $location, $scope, Authenticator) {
 
+		$scope.viewAnimation = "slide-left";
 		$scope.pageHeaderHtml = "/partials/page-header.html";
 
-		$scope.logOut = function() {
+		$scope.logout = function() {
 
 	        console.log("De-authing...");
-	        var sStor = $window.sessionStorage;
-	        if(sStor['credentials']) {
-	            delete sStor['credentials'];
-	        }
-
-	        /*
-	        var lStor = $window.localStorage;
-	        for(var k in lStor) {
-	            if(/^token\-/.test(k)) delete lStor[k];
-	        }
-			*/
-	        $location.url("/login");
+	        Authenticator.logout();
+	    }
+	    $scope.showLogoutBtn = function() {
+	    	return $location.path() !== "/login";
 	    }
 	}
 ]);
@@ -29,6 +22,7 @@ appControllers.controller('loginController', [
 	'$scope', '$window', '$routeParams', '$location', 'Authenticator',
 	function($scope, $window, $routeParams, $location, Authenticator) {
 
+		$scope.viewAnimation = "slide-left";
 		$scope.credentials = { username: "", password: "" };
 
 		var defaultPage = "/ns";
@@ -66,6 +60,7 @@ appControllers.controller('namespacesController', [ '$window', '$location', '$sc
 
 		var accessMgr = new AccessManager("/ns");
 
+		$scope.viewAnimation = "slide-left";
 		$scope.pageHeaderHtml = "/partials/page-header.html";
 
 		$scope.Namespaces = [];
@@ -82,6 +77,7 @@ appControllers.controller('namespaceDetailsController', [ '$window', '$location'
 
 		var accessMgr = new AccessManager("/ns/"+$routeParams.Namespace);
 
+		$scope.viewAnimation = "slide-left";
 		$scope.pageHeaderHtml = "/partials/page-header.html";
 
 		$scope.Namespace = $routeParams.Namespace;
@@ -98,10 +94,13 @@ appControllers.controller('eventTypeDetailsController', [ '$window', '$location'
 	function($window, $location, $routeParams, $scope, SpinalCord, AccessManager) {
 
 		var accessMgr;
-		if($routeParams.Handler && $routeParams.Handler !== "")
+		if($routeParams.Handler && $routeParams.Handler !== "") {
 			accessMgr = new AccessManager("/ns/"+$routeParams.Namespace+"/"+$routeParams.EventType+"/"+$routeParams.Handler);
-		else
+			$scope.viewAnimation = "";
+		} else {
 			accessMgr = new AccessManager("/ns/"+$routeParams.Namespace+"/"+$routeParams.EventType);
+			$scope.viewAnimation = "slide-left";
+		}
 
 		$scope.pageHeaderHtml = "/partials/page-header.html";
 
@@ -150,6 +149,7 @@ appControllers.controller('eventTypeDetailsController', [ '$window', '$location'
 		);
 
 		$scope.fetchHandlerData = function(handler) {
+			$scope.viewAnimation = "";
 			$location.path("/ns/"+$scope.Namespace+"/"+$scope.EventType+"/"+handler.name);
 		}
 	}

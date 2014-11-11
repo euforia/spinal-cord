@@ -8,11 +8,29 @@ body {
 }
 div[ng-view] {
 	width: 96%;
-	border-top: 1px solid #666;
 	margin-left: auto;
 	margin-right: auto;
 	/*padding-left: 10px;
 	padding-right: 10px;*/
+}
+
+.slide.slide-left.ng-enter {
+    position:absolute;
+    -webkit-transition: 0.35s ease-out all;
+    -webkit-transform:translate3d(100%,0,0) ;
+}
+.slide.slide-left.ng-enter.ng-enter-active {
+    position:absolute;
+    -webkit-transform:translate3d(0,0,0) ;
+}
+.slide.slide-left.ng-leave {
+    position:absolute;
+    -webkit-transition: 0.35s ease-out all;
+    -webkit-transform:translate3d(0,0,0);
+}
+.slide.slide-left.ng-leave.ng-leave-active {
+    position:absolute;
+    -webkit-transform:translate3d(-100%,0,0);
 }
 
 ul {
@@ -41,9 +59,11 @@ ul {
 }
 */
 #stage {
-	style="border: 1px solid #ddd;
 	overflow-x:hidden;
+	/*
+	style="border: 1px solid #ddd;
 	transition: all 0.35s ease;
+	*/
 }
 #stage,
 #stage .table {
@@ -55,6 +75,9 @@ ul {
 #login-window-container {
 	width: 100%;
 	height: 100%;
+	position: absolute;
+	left: 0px;
+	/*right: 0px;*/
 }
 #login-window {
 	padding: 10px;
@@ -64,18 +87,7 @@ ul {
 }
 #login-window-header {
 	height: 22px;
-}/*
-#login-window-body>.input-group>.input-group-addon {
-	background: none;
-	color: #bbb;
 }
-#login-window-body>.input-group>.form-control {
-	border-left: none;
-	box-shadow: none;
-}
-#login-window-body>.input-group>.form-control:focus {
-	border-color: #ccc;
-}*/
 #login-window-footer {
 	text-align: right;
 	padding-top: 10px;
@@ -93,9 +105,9 @@ ul {
 }
 
 #page-header {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	width: 94%;
+	border-bottom: 1px solid #666;
+	padding:10px;
+	width: 96%%;
 	margin-left: auto;
 	margin-right: auto;
 	color: #ccc;
@@ -125,8 +137,6 @@ ul {
 #event-sample {
 	background: rgba(33,33,33,0.95);
 	border-radius: 3px;
-	position: absolute;
-	left: 0px;
 }
 #event-sample-btn {
 	transition: all 0.35s ease;
@@ -171,15 +181,17 @@ ul {
 }
 
 #handler-editor-container {
+	transition: all 0.35s ease;
 	border: 1px solid #505050;
 	border-bottom: 1px solid #333;
-	min-height: 65%;
+	min-height: 400px;
 	/*padding-left: 5px;*/
 	border-radius: 3px;
 	box-shadow: 0 10px 6px -6px rgba(0,0,0,0.3);
 	background: linear-gradient(30deg, rgba(60,60,60,0.65), rgba(60,60,60,0.05)) !important;
 }
 #handler-editor-header {
+	transition: all 0.35s ease;
 	padding: 14px 8px 14px 8px !important;
 	margin: 0;
 	margin-left: 35px;
@@ -187,8 +199,13 @@ ul {
 	font-size: 13px;
 }
 #handler-editor {
+	transition: all 0.35s ease;
 	width: 100%;
-	height: 65%;
+	height: 380px;
+}
+.ace_scroller {
+	transition: all 0.3s ease;
+	background-color: #202020;
 }
 .handler-sha1 {
 	padding-left: 3px;

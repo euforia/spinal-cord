@@ -22,7 +22,7 @@
 	<body>
 		<div id="stage" ng-app="app" ng-controller="defaultController">
 			<ng-include src="pageHeaderHtml"></ng-include>
-			<div style="overflow-y:scroll" ng-view></div>
+			<div style="overflow-y:scroll" ng-view ng-animate="{enter: 'enter', leave: 'leave'}" class="slide {{viewAnimation}}"></div>
 		</div>
 	</body>
 </html>

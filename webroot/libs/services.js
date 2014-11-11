@@ -39,7 +39,7 @@ appServices.factory('ConfigManager', ['$http', function($http) {
     };
 }]);
 
-appServices.factory('Authenticator', ['$window', '$http', function($window, $http) {
+appServices.factory('Authenticator', ['$window', '$http', '$location', function($window, $http, $location) {
     var Authenticator = {
         login: function(creds) {
             // do actual auth here //
@@ -59,6 +59,13 @@ appServices.factory('Authenticator', ['$window', '$http', function($window, $htt
                 }
             }
             return false;
+        },
+        logout: function() {
+            var sStor = $window.sessionStorage;
+            if(sStor['credentials']) {
+                delete sStor['credentials'];
+            }
+            $location.url("/login");
         }
     };
 

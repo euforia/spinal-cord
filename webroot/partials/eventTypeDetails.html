@@ -26,7 +26,7 @@
                 <div id="handler-editor-container">
                     <div id="handler-editor-header" class="row">
                         <div class="col-md-4 text-left" style="padding:0">
-                            <span><b>{{selectedHandler.name|formattedHandlerName}}</span>
+                            <span>{{selectedHandler.name|formattedHandlerName}}</span>
                         </div>
                         <div class="col-md-6 text-left" style="padding:0">
                             <span>{{selectedHandler.sha1|formattedSha1}}</span></span>
@@ -36,7 +36,7 @@
                             <span class="pull-right">{{selectedHandler.language|formattedLanguage}}</span>
                         </div>
                     </div>
-                    <div id="handler-editor" ng-model="selectedHandler.content" handler-editor style="display:none"></div>
+                    <div id="handler-editor" ng-model="selectedHandler.content" handler-editor></div>
                 </div>
             </div>
         </div>

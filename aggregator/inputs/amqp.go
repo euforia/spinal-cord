@@ -1,7 +1,7 @@
 package inputs
 
 import(
-    "log"
+    //"log"
     "fmt"
     "github.com/streadway/amqp"
     "github.com/euforia/spinal-cord/logging"
@@ -93,6 +93,7 @@ func (c *AMQPInput) Start(callback AMQPCallback) error {
 func (c *AMQPInput) BindToExchanges(exchanges []string, key string, queueName string) {
     success := 0
     for _, exch := range exchanges {
+        c.logger.Debug.Printf("Binding to exchange: %s...\n", exch)
         err := c.channel.QueueBind(
             queueName, // name of the queue
             key,        // routingKey
@@ -101,7 +102,7 @@ func (c *AMQPInput) BindToExchanges(exchanges []string, key string, queueName st
             nil,        // arguments
         )
         if err != nil {
-            log.Printf("Could not bind to queue: %s\n", err)
+            c.logger.Error.Printf("Could not bind to queue: %s\n", err)
             continue
         }
         c.logger.Warning.Printf("Queue: %s <= bound to Exchange: %s\n", queueName, exch)

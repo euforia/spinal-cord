@@ -176,8 +176,11 @@ func decodeMessage(d amqp.Delivery) (revent.Event, error) {
 func handle(deliveries <-chan amqp.Delivery, done chan error, logger *logging.Logger) {
 
     zsock, _ := zmq.NewSocket(zmq.PUSH)
-    zsock.Connect(*FEED_CONNECT_URI)
+    err := zsock.Connect(*FEED_CONNECT_URI)
     defer zsock.Close()
+    if err != nil {
+        logger.Error.Println(err)
+    }
     spinalCord := inputs.BasicSock{zsock, logger}
 
     for d := range deliveries {
