@@ -45,6 +45,10 @@ func checkAMQP(logger *logging.Logger) {
         flag.PrintDefaults()
         logger.Error.Fatal("Must provide '-bind-to'!")
     }
+    if *ROUTING_KEY == "" {
+        flag.PrintDefaults()
+        logger.Error.Fatal("Must provide '-routing-key'!")
+    }
     for _, b := range strings.Split(*bindTo, ",") {
         if b != "" {
             bindToExch = append(bindToExch, b)
