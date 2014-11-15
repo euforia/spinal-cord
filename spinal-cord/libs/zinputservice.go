@@ -1,4 +1,4 @@
-package inputs
+package libs
 
 import(
     "encoding/json"

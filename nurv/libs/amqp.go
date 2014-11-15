@@ -4,10 +4,11 @@ import(
     "fmt"
     "github.com/streadway/amqp"
     "github.com/euforia/spinal-cord/logging"
+    zmq "github.com/pebbe/zmq3"
 )
 
 
-type AMQPCallback func(<-chan amqp.Delivery, chan error, *logging.Logger)
+type AMQPCallback func(<-chan amqp.Delivery, chan error, *logging.Logger, *zmq.Socket)
 
 type AMQPInput struct {
     conn      *amqp.Connection
@@ -71,7 +72,7 @@ func NewAMQPInput(amqpURI string, bindExch []string, exchangeType, queueName, ke
     return c, nil
 }
 
-func (c *AMQPInput) Start(callback AMQPCallback) error {
+func (c *AMQPInput) Start(callback AMQPCallback, sock *zmq.Socket) error {
     deliveries, err := c.channel.Consume(
         c.queueName,
         c.tag,      // consumerTag,
@@ -85,7 +86,7 @@ func (c *AMQPInput) Start(callback AMQPCallback) error {
         return err
     }
 
-    go callback(deliveries, c.done, c.logger)
+    go callback(deliveries, c.done, c.logger, sock)
     return nil
 }
 

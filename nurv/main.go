@@ -8,7 +8,6 @@ import (
     "github.com/streadway/amqp"
     "github.com/euforia/spinal-cord/logging"
     "github.com/euforia/spinal-cord/reactor/revent"
-    "github.com/euforia/spinal-cord/aggregator/inputs"
     "github.com/euforia/spinal-cord/nurv/libs"
     "strings"
     "time"
@@ -87,7 +86,14 @@ func startAmqpInput(logger *logging.Logger) {
         logger.Warning.Printf("Connected: %s\n", *AMQP_URI)
     }
 
-    if err = c.Start(handle); err != nil {
+    zsock, _ := zmq.NewSocket(zmq.PUSH)
+    err = zsock.Connect(*FEED_CONNECT_URI)
+    defer zsock.Close()
+    if err != nil {
+        logger.Error.Fatal(err)
+    }
+
+    if err = c.Start(handle, zsock); err != nil {
         logger.Error.Fatalf("%s\n", err)
     }
 
@@ -178,8 +184,8 @@ func decodeMessage(d amqp.Delivery) (revent.Event, error) {
     return event, nil
 }
 
-func handle(deliveries <-chan amqp.Delivery, done chan error, logger *logging.Logger) {
-
+func handle(deliveries <-chan amqp.Delivery, done chan error, logger *logging.Logger, zsock *zmq.Socket) {
+/*
     zsock, _ := zmq.NewSocket(zmq.PUSH)
     err := zsock.Connect(*FEED_CONNECT_URI)
     defer zsock.Close()
@@ -187,7 +193,7 @@ func handle(deliveries <-chan amqp.Delivery, done chan error, logger *logging.Lo
         logger.Error.Println(err)
     }
     spinalCord := inputs.BasicSock{zsock, logger}
-
+*/
     for d := range deliveries {
         //log.Printf("got %dB delivery: [%v] %q", len(d.Body),d.DeliveryTag,d.Body)
         event, err := decodeMessage(d)
@@ -203,7 +209,8 @@ func handle(deliveries <-chan amqp.Delivery, done chan error, logger *logging.Lo
             continue
         }
 
-        spinalCord.Sock.Send(msg, 0)
+        //spinalCord.Sock.Send(msg, 0)
+        zsock.Send(msg, 0)
         logger.Debug.Printf("Event sent: %s\n", msg)
         d.Ack(false)
     }

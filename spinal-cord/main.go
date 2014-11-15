@@ -8,7 +8,6 @@ import(
     "strings"
     "github.com/euforia/spinal-cord/spinal-cord/libs"
     "github.com/euforia/spinal-cord/logging"
-    "github.com/euforia/spinal-cord/aggregator/inputs"
     "github.com/euforia/spinal-cord/reactor"
     "github.com/euforia/spinal-cord/reactor/handler"
     "github.com/euforia/spinal-cord/reactor/task"
@@ -97,13 +96,13 @@ func StartWebService(logger *logging.Logger) {
 func StartSpinalCord(logger *logging.Logger, pubChan chan string) {
     /* load input feed service */
     go func(ch chan string) {
-        reqRep := inputs.NewInputService("PULL", *FEED_LISTEN_URI, logger)
+        reqRep := libs.NewInputService("PULL", *FEED_LISTEN_URI, logger)
         reqRep.Start(ch)
     }(pubChan)
 
     /* load default request/response service */
     go func(ch chan string) {
-        reqRep := inputs.NewInputService("REP", *REQP_LISTEN_URI, logger)
+        reqRep := libs.NewInputService("REP", *REQP_LISTEN_URI, logger)
         reqRep.Start(ch)
     }(pubChan)
 
