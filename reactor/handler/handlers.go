@@ -27,6 +27,10 @@ func (h *Handler) WriteHandlerFile(dirpath string, perms os.FileMode) error {
     return ioutil.WriteFile(abspath, h.Data, perms)
 }
 
+func (h *Handler) Remove() error {
+    return os.Remove(h.Path)
+}
+
 type EventHandler struct {
     Path string `json:"path"`
     FullPath string `json:"fullpath"`

@@ -130,3 +130,18 @@ func (n *EventHandlerHandle) PUT(r *http.Request, args... string) (interface{}, 
     }
     return status, 200
 }
+
+func (n *EventHandlerHandle) DELETE(r *http.Request, args... string) (interface{}, int) {
+    if !n.mgr.PathExists(r.URL.Path) {
+        return map[string]string{"error": "not found"}, 404
+    }
+    ehdlr, err := n.mgr.GetHandler(r.URL.Path[1:])
+    if err != nil {
+        return map[string]string{"error": fmt.Sprintf("%s",err)}, 500
+    }
+    err = ehdlr.Remove()
+    if err != nil {
+        return map[string]string{"error": fmt.Sprintf("%s",err)}, 500
+    }
+    return map[string]string{"status": "success"}, 200
+}
