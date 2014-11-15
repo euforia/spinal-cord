@@ -10,10 +10,7 @@ div[ng-view] {
 	width: 96%;
 	margin-left: auto;
 	margin-right: auto;
-	/*padding-left: 10px;
-	padding-right: 10px;*/
 }
-
 .slide.slide-left.ng-enter {
     position:absolute;
     -webkit-transition: 0.35s ease-out all;
@@ -50,20 +47,8 @@ ul {
 	color: #428bca;
 	border-color: #428bca;
 }
-/*
-.row.evt-detail-header {
-	padding:0;
-	margin:0;
-	padding-top:5px;
-	padding-bottom:5px;
-}
-*/
 #stage {
 	overflow-x:hidden;
-	/*
-	style="border: 1px solid #ddd;
-	transition: all 0.35s ease;
-	*/
 }
 #stage,
 #stage .table {
@@ -146,7 +131,11 @@ ul {
 	color: #428bca;
 }
 .evt-detail-section {
+	transition: all 0.35s ease;
 	padding: 10px;
+}
+.evt-detail-section:hover {
+	border-left: 5px solid #428bca;
 }
 .input-group>.form-control,
 .input-group>.input-group-addon {
@@ -162,13 +151,8 @@ ul {
 	background:none;
 	border:none;
 }
-.evt-detail-section>.input-group {
-	padding-right: 5px;
-}
 .evt-detail-section>.input-group>.form-control {
-	border-top-left-radius: 22px !important;
-	border-bottom-left-radius: 22px !important;
-	border-radius:22px;
+	border-radius:22px !important;
 	height:26px;
 }
 #handler-list-container {
@@ -185,27 +169,127 @@ ul {
 	border: 1px solid #505050;
 	border-bottom: 1px solid #333;
 	min-height: 400px;
-	/*padding-left: 5px;*/
 	border-radius: 3px;
 	box-shadow: 0 10px 6px -6px rgba(0,0,0,0.3);
 	background: linear-gradient(30deg, rgba(60,60,60,0.65), rgba(60,60,60,0.05)) !important;
 }
+
 #handler-editor-header {
 	transition: all 0.35s ease;
-	padding: 14px 8px 14px 8px !important;
+	padding: 10px 8px 10px 8px !important;
 	margin: 0;
-	margin-left: 35px;
 	color: #aaa;
-	font-size: 13px;
+}
+#handler-editor-header.input-group>.input-group-addon {
+	background: none;
+	border: 1px solid rgba(0,0,0,0);
+	cursor: pointer;
+	transition: 0.35s ease-out all;
+}
+#handler-editor-header.input-group>.input-group-addon:hover {
+	color: #428bca;
+}
+#handler-editor-header.input-group>.form-control {
+	transition: all 0.35s ease;
+	background: none;
+	border: 1px solid rgba(0,0,0,0);
+	box-shadow: none;
+	border-radius: 3px;
+	cursor: text;
+}
+#handler-editor-header.input-group>.form-control.editable.ng-invalid.ng-invalid-required {
+	border: 1px solid rgba(255,0,0,0.35);
+	box-shadow: inset 0 2px 2px rgba(0,0,0,0.2);
+}
+#handler-editor-header.input-group>.form-control:hover {
+	box-shadow: inset 0 2px 2px rgba(0,0,0,0.2);
+	border: 1px solid #666;
+}
+#handler-editor-header.input-group>.form-control[disabled='disabled']:hover{
+	border: 1px solid rgba(0,0,0,0);
+	box-shadow: none;
+}
+#import-handler-btn,
+#new-handler-btn {
+	transition: all 0.35s ease;
+	padding:10px;
+	cursor: pointer;
+	color: #707070;
+}
+#import-handler-btn:hover,
+#new-handler-btn:hover {
+	color: #428bca;
+}
+select#lang-selector {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background: none;
+	transition: 0.35s ease-out all;
+	border: none;
+	direction: rtl;
+	text-align: center;
+	cursor: pointer;
+}
+select#lang-selector:hover {
+	color: #428bca;
+}
+#handler-editor-header.input-group>.input-group-addon[disabled='disabled'],
+select#lang-selector[disabled='disabled'] {
+	cursor: text;
+}
+#handler-editor-header.input-group>.input-group-addon[disabled='disabled']:hover,
+select#lang-selector[disabled='disabled']:hover {
+	color: rgb(170,170,170);
+}
+#handler-save-btn {
+	transition: all 0.35s ease;
+	padding:10px;
+	position:absolute;
+	right:0;
+	z-index:10;
+	cursor: pointer;
+	opacity: 0.6;
+}
+#handler-save-btn:hover {
+	color: #428bca;
+	opacity: 1;
 }
 #handler-editor {
 	transition: all 0.35s ease;
 	width: 100%;
 	height: 380px;
 }
+#handler-editor-vizor {
+	width: 100%;
+	height: 380px;
+	z-index: 7;
+	position: absolute;
+	/*left: 0px;*/
+	bottom: 21px;
+	transition: all 0.35s ease;
+	background: rgba(255,255,255,0.1);
+}
+#handler-editor-vizor.down {
+	height: 0px;
+}
+.ace-ambiance .ace_scroller {
+	-wekit-box-shadow: inset 0 0 8px rgba(0,0,0,0.6) !important;
+	-moz-box-shadow: inset 0 0 8px rgba(0,0,0,0.6) !important;
+	box-shadow: inset 0 0 8px rgba(0,0,0,0.6) !important;
+}
 .ace_scroller {
-	transition: all 0.3s ease;
-	background-color: #202020;
+	transition: all 0.35s ease;
+	background-color: #303030;
+}
+.ace_scroller.readonly {
+	box-shadow: none !important;
+}
+.ace_gutter {
+	transition: all 0.4s ease;
+}
+.ace_gutter.readonly {
+	background: none !important;
+	border-right: 1px solid #333 !important;
 }
 .handler-sha1 {
 	padding-left: 3px;
@@ -247,4 +331,24 @@ a.list-group-item:hover {
 #login-window-body>.input-group>.input-group-addon,
 .event-path-header>.input-group>.input-group-addon {
 	background: none;
+}
+.toolbar-btn {
+	border: 1px solid #666;
+	border-radius: 3px;
+	padding: 5px;
+	display: inline-block;
+	padding-left: 12px;
+	padding-right: 12px;
+	margin-right: 10px;
+}
+#handler-editor-toolbar {
+	padding-bottom: 10px;
+}
+#handler-editor-toolbar>.toolbar-btn>.glyphicon {
+	font-size: 28px;
+}
+.toolbar-btn-label  {
+	font-size: 10px;
+	padding-top: 3px;
+	text-align: center;
 }

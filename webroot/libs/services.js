@@ -76,15 +76,18 @@ appServices.factory('SpinalCord', ['$http', 'ConfigManager', function($http, Con
 
     var API_URL = "/api/ns";
 
-    function httpJsonCall(url, method, callback) {
-        $http({
+    function httpJsonCall(url, method, callback, data) {
+        var httpOpts = {
             url: url,
             method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-        }).success(function(data, status, headers, config) {
+        };
+        if(data) httpOpts.data = data;
+        $http(httpOpts)
+        .success(function(data, status, headers, config) {
 
             if(callback) callback(data);
         }).error(function(data, status, headers, config) {
@@ -106,6 +109,15 @@ appServices.factory('SpinalCord', ['$http', 'ConfigManager', function($http, Con
         },
         HandlerContents: function(ns, etype, handlerName, cb) {
             httpJsonCall(API_URL+"/"+ns+"/"+etype+"/"+handlerName, "GET", cb);
+        },
+        SaveHandler: function(ns, etype, handlerName, data, cb) {
+            httpJsonCall(API_URL+"/"+ns+"/"+etype+"/"+handlerName, "POST", cb, data);
+        },
+        EditHandler: function(ns, etype, handlerName, data, cb) {
+            httpJsonCall(API_URL+"/"+ns+"/"+etype+"/"+handlerName, "PUT", cb, data);
+        },
+        DeleteHandler: function(ns, etype, handlerName, cb) {
+            httpJsonCall(API_URL+"/"+ns+"/"+etype+"/"+handlerName, "DELETE", cb);
         }
     };
 

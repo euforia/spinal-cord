@@ -17,25 +17,43 @@
                     <div class="list-group handlers">
                         <a href="javascript:void(0)" ng-repeat="handler in Details.handlers|filter:handlerSearch" class="list-group-item" ng-click="fetchHandlerData(handler)">
                             <div>{{handler.name}}</div>
-                            <div class="handler-sha1">{{handler.sha1}}</div>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-md-9" style="padding-right:0;padding-bottom:20px;">
                 <div id="handler-editor-container">
-                    <div id="handler-editor-header" class="row">
-                        <div class="col-md-4 text-left" style="padding:0">
-                            <span>{{selectedHandler.name|formattedHandlerName}}</span>
-                        </div>
-                        <div class="col-md-6 text-left" style="padding:0">
-                            <span>{{selectedHandler.sha1|formattedSha1}}</span></span>
-                        </div>
-                        <div class="col-md-2 text-right" style="padding:0">
-                            <!--<span class="glyphicon glyphicon-pencil"></span>-->
-                            <span class="pull-right">{{selectedHandler.language|formattedLanguage}}</span>
+                    <div class="row" style="margin:0">
+                        <div class="col-md-12" style="padding:0">
+                            <div class="input-group input-group-sm" id="handler-editor-header">
+                                <span class="input-group-addon" ng-click="createNewHandler()" title="New Handler">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </span>
+                                <span class="input-group-addon" ng-click="importHandler()" title="Import Handler">
+                                    <span class="glyphicon glyphicon-cloud-upload"></span>
+                                </span>
+                                <input type="text" class="form-control" ng-model="selectedHandler.name" required ng-disabled="!canEditHandlerMeta()" ng-class="{ 'editable': editing }">
+                                <div class="input-group-addon" style="padding-top:0;padding-bottom:0;" ng-disabled="!canEditHandlerMeta()">
+                                    <select id="lang-selector" ng-model="selectedHandler.language" ng-disabled="!canEditHandlerMeta()">
+                                        <option value="perl">perl</option>
+                                        <option value="python">python</option>
+                                        <option value="ruby">ruby</option>
+                                        <option value="sh">shell</option>
+                                    </select>
+                                </div>
+                                <div class="input-group-addon" title="Edit Handler" ng-click="editing=!editing;">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </div>
+                                <div class="input-group-addon" title="Delete Handler" data-toggle="modal" data-target="#delete-handler-dialog">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <span ng-if="editing" id="handler-save-btn" title="Save Handler" data-toggle="modal" data-target="#save-handler-dialog">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </span>
+                    <div id="handler-editor-vizor" ng-class="{ 'down': editing }"></div>
                     <div id="handler-editor" ng-model="selectedHandler.content" handler-editor></div>
                 </div>
             </div>
@@ -54,6 +72,44 @@
                 <pre class="code-block event">{{Details.sample|json:pretty}}</pre>
             </div>
           <div class="modal-footer" style="border-color: #428bca">
+            <button type="button" class="btn btn-default event-close" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="delete-handler-dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="background:rgba(60,60,60,0.7)">
+            <div class="modal-header" style="border-color: #428bca;">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" style="color:#428bca">Delete : <span style="color:#999">{{Namespace}}/{{EventType}}/{{selectedHandler.name}}</span></h4>
+            </div>
+            <div class="modal-body" style="font-weight:bold">
+                Are you sure want to delete the event handler?
+            </div>
+          <div class="modal-footer" style="border-color: #428bca">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteHandler()">Delete</button>
+            <button type="button" class="btn btn-default event-close" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="save-handler-dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="background:rgba(60,60,60,0.7)">
+            <div class="modal-header" style="border-color: #428bca;">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" style="color:#428bca">Save : <span style="color:#999">{{Namespace}}/{{EventType}}/{{selectedHandler.name}}</span></h4>
+            </div>
+            <div class="modal-body" style="font-weight:bold">
+                Are you sure want to save the event handler?
+            </div>
+          <div class="modal-footer" style="border-color: #428bca">
+            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveHandler()">Save</button>
             <button type="button" class="btn btn-default event-close" data-dismiss="modal">Close</button>
           </div>
         </div>
