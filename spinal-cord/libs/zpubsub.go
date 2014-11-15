@@ -1,13 +1,13 @@
-package aggregator
+package libs
 
 import(
     "github.com/euforia/spinal-cord/logging"
-    "github.com/euforia/spinal-cord/aggregator/inputs"
     zmq "github.com/pebbe/zmq3"
 )
 
 type PubSubServer struct {
-    inputs.BasicSock
+    Sock *zmq.Socket
+    Logger *logging.Logger
 }
 
 func NewPubSubServer(listenAddr string, logger *logging.Logger) *PubSubServer {
@@ -18,7 +18,7 @@ func NewPubSubServer(listenAddr string, logger *logging.Logger) *PubSubServer {
         logger.Error.Fatalf("%s %v\n", listenAddr, err)
     }
     logger.Warning.Printf("Publishing Service started: %s\n", listenAddr)
-    return &PubSubServer{inputs.BasicSock{pubServer, logger}}
+    return &PubSubServer{pubServer, logger}
 }
 
 func (p *PubSubServer) Start(ch chan string) {

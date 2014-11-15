@@ -1,7 +1,6 @@
-package inputs
+package libs
 
 import(
-    //"log"
     "fmt"
     "github.com/streadway/amqp"
     "github.com/euforia/spinal-cord/logging"

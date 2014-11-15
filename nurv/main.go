@@ -9,6 +9,7 @@ import (
     "github.com/euforia/spinal-cord/logging"
     "github.com/euforia/spinal-cord/reactor/revent"
     "github.com/euforia/spinal-cord/aggregator/inputs"
+    "github.com/euforia/spinal-cord/nurv/libs"
     "strings"
     "time"
     zmq "github.com/pebbe/zmq3"
@@ -78,7 +79,7 @@ func checkReqRep(logger *logging.Logger) {
 }
 
 func startAmqpInput(logger *logging.Logger) {
-    c, err := inputs.NewAMQPInput(*AMQP_URI, bindToExch, *exchangeType,
+    c, err := libs.NewAMQPInput(*AMQP_URI, bindToExch, *exchangeType,
                         *QUEUE_NAME, *ROUTING_KEY, *consumerTag, logger)
     if err != nil {
         logger.Error.Fatalf("%s\n", err)

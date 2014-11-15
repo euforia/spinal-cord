@@ -6,8 +6,8 @@ import(
     "os"
     "net/http"
     "strings"
+    "github.com/euforia/spinal-cord/spinal-cord/libs"
     "github.com/euforia/spinal-cord/logging"
-    "github.com/euforia/spinal-cord/aggregator"
     "github.com/euforia/spinal-cord/aggregator/inputs"
     "github.com/euforia/spinal-cord/reactor"
     "github.com/euforia/spinal-cord/reactor/handler"
@@ -109,7 +109,7 @@ func StartSpinalCord(logger *logging.Logger, pubChan chan string) {
 
     /* start pub/sub server */
     go func(ch chan string) {
-        pubSubServer := aggregator.NewPubSubServer(*PSUB_LISTEN_URI, logger)
+        pubSubServer := libs.NewPubSubServer(*PSUB_LISTEN_URI, logger)
         pubSubServer.Start(ch)
     }(pubChan)
 }
