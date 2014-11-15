@@ -15,10 +15,10 @@ import(
     "github.com/euforia/spinal-cord/web"
 )
 
-const VERSION string = "0.0.2"
+const SPINAL_CORD_VERSION string = "0.0.2"
 
 var (
-    SHOW_VERSION = flag.Bool("version", false, "Show version")
+    I_SPINAL_CORD_VERSION = flag.Bool("version", false, "Show version")
     // worker connection to task server //
     WORKER           = flag.Bool("worker", false, "Start worker")
     TASK_CONNECT_URI = flag.String("task-server-uri", "tcp://127.0.0.1:44444", "Worker connection to task server")
@@ -27,7 +27,7 @@ var (
     //PSUB_CONNECT_URI = flag.String("psub-server-uri", "tcp://127.0.0.1:55000", "Spinal cord server")
     PSUB_CONNECT_URI string
 
-    LOGLEVEL         = flag.String("log-level", "trace", "Log level")
+    SP_LOGLEVEL      = flag.String("log-level", "trace", "Log level")
     HANDLERS_DIR     = flag.String("handlers-dir", "", "Directory to store handlers. (required)")
 
     HTTP_LISTEN_URI = flag.String("http-listen-addr", ":8080", "HTTP server")
@@ -42,12 +42,12 @@ var (
 func InitFlags(logger *logging.Logger) {
     flag.Parse()
 
-    if *SHOW_VERSION {
-        fmt.Println(VERSION)
+    if *I_SPINAL_CORD_VERSION {
+        fmt.Println(SPINAL_CORD_VERSION)
         os.Exit(0)
     }
 
-    err := logger.SetLogLevel(*LOGLEVEL)
+    err := logger.SetLogLevel(*SP_LOGLEVEL)
     if err != nil {
         logger.Error.Fatal(err)
     }

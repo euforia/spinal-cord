@@ -14,17 +14,17 @@ import (
     zmq "github.com/pebbe/zmq3"
 )
 
-const VERSION string = "0.0.2"
+const NURV_VERSION string = "0.0.2"
 
 var (
-    SHOW_VERSION = flag.Bool("version", false, "Show version")
+    I_NURV_VERSION = flag.Bool("version", false, "Show version")
     NURV_TYPE    = flag.String("type", "amqp", "Type of input. Options - amqp|reqp")
 
     REQP_CONNECT_URI = flag.String("task-server-uri", "tcp://localhost:55055", "REQP URI to task server")
     EVENT_TYPE   = flag.String("event-type", "", "REQP event type to fire.")
     EVENT_DATA   = flag.String("data", "", "REQP data/payload for event.")
 
-    LOGLEVEL     = flag.String("log-level", "trace", "Log level")
+    N_LOGLEVEL   = flag.String("log-level", "trace", "Log level")
     NAMESPACE    = flag.String("namespace", "misc", "Namespace for this event input i.e. 'nurv'.")
 
     FEED_CONNECT_URI  = flag.String("feed-server", "tcp://localhost:45454", "URI to spinal cord server")
@@ -145,12 +145,12 @@ func fireEvent(logger *logging.Logger) {
 func Init(logger *logging.Logger) {
     flag.Parse()
 
-    if *SHOW_VERSION {
-        fmt.Println(VERSION)
+    if *I_NURV_VERSION {
+        fmt.Println(NURV_VERSION)
         os.Exit(0)
     }
 
-    logger.SetLogLevel(*LOGLEVEL)
+    logger.SetLogLevel(*N_LOGLEVEL)
 
     switch(*NURV_TYPE) {
         case "amqp":
