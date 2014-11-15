@@ -6,6 +6,7 @@ Spinal cord is an event aggregator and reactor, which can perform arbitrary acti
 Installation
 ============
 ::
+
     go get github.com/euforia/spinal-cord/spinal-cord
     go get github.com/euforia/spinal-cord/nurv
 
