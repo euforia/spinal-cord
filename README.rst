@@ -12,6 +12,7 @@ Installation
 
 This will generate 2 binaries that can be found under **$GOPATH/bin**
 
+
 spinal-cord
 ===========
 
@@ -21,7 +22,8 @@ The server is responsible for aggregating all input events via *PUSH/PULL* or *R
 
 Example::
 
-    spinal-cord -handlers-dir /path/to/store/handlers/and/data -webroot /absolute/path/to/webroot
+    spinal-cord -handlers-dir /path/to/store/handlers/and/data \
+                -webroot /absolute/path/to/webroot
 
 Worker
 ------
@@ -29,7 +31,8 @@ The worker accepts tasks from the server and executes them.
 
 Example::
 
-    spinal-cord -worker -handlers-dir /path/to/store/handlers/and/data
+    spinal-cord -worker \
+                -handlers-dir /path/to/store/handlers/and/data
 
 
 nurv
@@ -38,13 +41,16 @@ nurv
 Example *PUSH/PULL*::
 
     nurv -type amqp -namespace openstack \
-        -uri="amqp://guest:guest@rmq.open.stack.server.org:5672" \
-        -queue="my.local.dev.info" \
-        -routing-key="notifications.info" \
-        -bind-to="keystone,nova,neutron"
+         -uri="amqp://guest:guest@rmq.open.stack.server.org:5672" \
+         -queue="my.local.dev.info" \
+         -routing-key="notifications.info" \
+         -bind-to="keystone,nova,neutron"
 
 Example *REQ/REP*::
 
-    nurv -type reqp -event-type zmq.test -namespace local -data '{"client":"nurv"}'
+    nurv -type reqp \
+         -namespace local \
+         -event-type zmq.test \
+         -data '{"client":"nurv"}'
 
-**Note**: cross compilation is currently not supported due to 'go' not support CGO_ENABLED=1
+**Note**: cross compilation is currently not supported due to CGO_ENABLED=1
