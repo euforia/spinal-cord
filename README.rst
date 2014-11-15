@@ -3,6 +3,13 @@ Spinal Cord
 ===========
 Spinal cord is an event aggregator and reactor, which can perform arbitrary actions on a given event.
 
+Installation
+============
+::
+    go get github.com/euforia/spinal-cord/spinal-cord
+    go get github.com/euforia/spinal-cord/nurv
+
+This will generate 2 binaries that can be found under $GOPATH/bin
 
 spinal-cord
 ===========
