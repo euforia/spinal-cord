@@ -261,10 +261,9 @@ select#lang-selector[disabled='disabled']:hover {
 	height: 380px;
 	z-index: 7;
 	position: absolute;
-	/*left: 0px;*/
 	bottom: 21px;
 	transition: all 0.35s ease;
-	background: rgba(255,255,255,0.1);
+	background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.2)) !important;
 }
 #handler-editor-vizor.down {
 	height: 0px;
@@ -281,12 +280,12 @@ select#lang-selector[disabled='disabled']:hover {
 .ace_scroller.readonly {
 	box-shadow: none !important;
 }
-.ace_gutter {
+#handler-editor>.ace_gutter {
 	transition: all 0.4s ease;
+	background: linear-gradient(30deg, rgba(60,60,60,0.4), rgba(70,70,70,0.9));
 }
-.ace_gutter.readonly {
-	background: none !important;
-	border-right: 1px solid #333 !important;
+#handler-editor>.ace_gutter.readonly {
+	border-right: 1px solid #404040 !important;
 }
 .handler-sha1 {
 	padding-left: 3px;
@@ -350,12 +349,12 @@ a.list-group-item:hover {
 	text-align: center;
 }
 .tooltip.in>.tooltip-arrow {
-	border-top-color: rgba(33,33,33,0.8) !important;
+	border-top-color: rgba(50,50,50,0.8) !important;
 	transition: all 0.35s ease;
 }
 .tooltip.in>.tooltip-inner {
-	background: rgba(33,33,33,0.8) !important;
-	color: #888 !important;
+	background: rgba(50,50,50,0.8) !important;
+	color: #aaa !important;
 	transition: all 0.35s ease;
 	border-radius: 3px;
 }

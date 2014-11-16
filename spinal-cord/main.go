@@ -14,7 +14,7 @@ import(
     "github.com/euforia/spinal-cord/web"
 )
 
-const SPINAL_CORD_VERSION string = "0.0.2"
+const SPINAL_CORD_VERSION string = "0.0.3"
 
 var (
     I_SPINAL_CORD_VERSION = flag.Bool("version", false, "Show version")
