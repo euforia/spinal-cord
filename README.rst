@@ -18,7 +18,7 @@ spinal-cord
 
 Server
 ------
-The server is responsible for aggregating all input events via *PUSH/PULL* or *REQ/REP* and triggering/tasking workers to execute the appropriate handlers based on the fired event.
+The server is responsible for aggregating all input events via *PUSH/PULL* or *REQ/REP* and triggering/tasking workers to execute the appropriate handlers based on the fired event.  It also provides a basic web service and API to interact with the events and handlers.
 
 Example::
 
@@ -46,11 +46,16 @@ Example *PUSH/PULL*::
          -routing-key="notifications.info" \
          -bind-to="keystone,nova,neutron"
 
+In the above example *nurv* will connect to an openstack event queue and listen for events which in turn will be published to all the subscribers including the event handler system.
+
+
 Example *REQ/REP*::
 
     nurv -type reqp \
          -namespace local \
          -event-type zmq.test \
          -data '{"client":"nurv"}'
+
+In this example a single event will be sent to the system with the provided data.
 
 **Note**: cross compilation is currently not supported due to CGO_ENABLED=1
