@@ -134,9 +134,6 @@ ul {
 	transition: all 0.35s ease;
 	padding: 10px;
 }
-.evt-detail-section:hover {
-	border-left: 5px solid #428bca;
-}
 .input-group>.form-control,
 .input-group>.input-group-addon {
 	color: #aaa;
@@ -351,4 +348,14 @@ a.list-group-item:hover {
 	font-size: 10px;
 	padding-top: 3px;
 	text-align: center;
+}
+.tooltip.in>.tooltip-arrow {
+	border-top-color: rgba(33,33,33,0.8) !important;
+	transition: all 0.35s ease;
+}
+.tooltip.in>.tooltip-inner {
+	background: rgba(33,33,33,0.8) !important;
+	color: #888 !important;
+	transition: all 0.35s ease;
+	border-radius: 3px;
 }

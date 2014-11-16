@@ -104,6 +104,9 @@ appControllers.controller('eventTypeDetailsController', [ '$window', '$location'
 		$('#save-handler-dialog').modal('hide');
 		$('.modal-backdrop').remove();
 
+		$('[data-toggle="tooltip"]').tooltip({container:'body'});
+  		$('[data-toggle="tooltip"]').tooltip('hide');
+
 		var accessMgr;
 		if($routeParams.Handler && $routeParams.Handler !== "") {
 			accessMgr = new AccessManager("/ns/"+$routeParams.Namespace+"/"+$routeParams.EventType+"/"+$routeParams.Handler);
@@ -167,6 +170,7 @@ appControllers.controller('eventTypeDetailsController', [ '$window', '$location'
 				}
 			}
 		);
+
 		$scope.canEditHandlerMeta = function() {
 			if($routeParams.Handler == "new") {
 				return true;

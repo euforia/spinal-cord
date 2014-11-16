@@ -1,7 +1,7 @@
 <div>
     <h4 class="event-path-header">
         <span>
-            <a href="#/ns">namespace</a> / <a href="#/ns/{{Namespace}}">{{Namespace}}</a> / {{EventType}}<sub id="event-sample-btn" data-target="#event-sample" data-toggle="modal" title="View sample event"><span class="glyphicon glyphicon-map-marker" style="padding-left:10px;padding-right:10px;"></span></sub>
+            <a href="#/ns">namespace</a> / <a href="#/ns/{{Namespace}}">{{Namespace}}</a> / {{EventType}}<sub id="event-sample-btn" data-target="#event-sample" data-toggle="modal"><span class="glyphicon glyphicon-map-marker" style="padding-left:10px;padding-right:10px;" title="View sample event" data-toggle="tooltip" data-placement="right"></span></sub>
         </span>
     </h4>
     <div>
@@ -26,26 +26,26 @@
                     <div class="row" style="margin:0">
                         <div class="col-md-12" style="padding:0">
                             <div class="input-group input-group-sm" id="handler-editor-header">
-                                <span class="input-group-addon" ng-click="createNewHandler()" title="New Handler">
+                                <span class="input-group-addon" ng-click="createNewHandler()" title="New Handler" data-toggle="tooltip" data-placement="top">
                                     <span class="glyphicon glyphicon-plus"></span>
                                 </span>
-                                <span class="input-group-addon" ng-click="importHandler()" title="Import Handler">
+                                <span class="input-group-addon" ng-click="importHandler()" title="Import Handler" data-toggle="tooltip" data-placement="top">
                                     <span class="glyphicon glyphicon-cloud-upload"></span>
                                 </span>
                                 <input type="text" class="form-control" ng-model="selectedHandler.name" required ng-disabled="!canEditHandlerMeta()" ng-class="{ 'editable': editing }">
-                                <div class="input-group-addon" style="padding-top:0;padding-bottom:0;" ng-disabled="!canEditHandlerMeta()">
-                                    <select id="lang-selector" ng-model="selectedHandler.language" ng-disabled="!canEditHandlerMeta()">
+                                <div class="input-group-addon" style="padding-top:0;padding-bottom:0;" ng-disabled="!canEditHandlerMeta()" data-toggle="tooltip" data-placement="top" title="Editor syntax">
+                                    <select id="lang-selector" ng-model="selectedHandler.language" ng-disabled="!canEditHandlerMeta()" data-toggle="tooltip" data-placement="bottom">
                                         <option value="perl">perl</option>
                                         <option value="python">python</option>
                                         <option value="ruby">ruby</option>
                                         <option value="sh">shell</option>
                                     </select>
                                 </div>
-                                <div class="input-group-addon" title="Edit Handler" ng-click="editing=!editing;">
+                                <div class="input-group-addon" title="Edit Handler" ng-click="editing=!editing;" data-toggle="tooltip" data-placement="top">
                                     <span class="glyphicon glyphicon-edit"></span>
                                 </div>
-                                <div class="input-group-addon" title="Delete Handler" data-toggle="modal" data-target="#delete-handler-dialog">
-                                    <span class="glyphicon glyphicon-trash"></span>
+                                <div class="input-group-addon" title="Delete Handler" data-toggle="tooltip" data-placement="top">
+                                    <span class="glyphicon glyphicon-trash" data-toggle="modal" data-target="#delete-handler-dialog" ></span>
                                 </div>
                             </div>
                         </div>
