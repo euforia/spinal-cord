@@ -11,6 +11,7 @@ INSTALL_DIR="/usr/local/bin/"
 all: preflight nurv spinal-cord
 
 preflight:
+	if [ $$GOPATH == "" ]; then echo "GOPATH not set!"; exit; fi
 	[ -e ${BUILD_DIR} ] || mkdir ${BUILD_DIR}
 
 nurv: preflight
