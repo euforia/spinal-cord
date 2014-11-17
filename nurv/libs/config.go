@@ -28,13 +28,13 @@ func LoadConfigFromFile(filepath string, cfg *Config) error {
 }
 
 type AMQPConfig struct {
-    URI string         `json:"uri"`
-    QueueName string   `json:"queue_name"`
+    URI string          `json:"uri"`
+    QueueName string    `json:"queue_name"`
     ExchangeType string `json:"exchange_type"`
-    RoutingKey string  `json:"routing_key"`
-    ConsumerTag string `json:"consumer_tag"`
-    Exchanges []string `json:"exchanges"`
+    RoutingKey string   `json:"routing_key"`
+    ConsumerTag string  `json:"consumer_tag"`
+    Exchanges []string  `json:"exchanges"`
 }
-func NewAMPQConfig() *AMQPConfig {
+func NewAMQPConfig() *AMQPConfig {
     return &AMQPConfig{"","","","","", make([]string,0)}
 }

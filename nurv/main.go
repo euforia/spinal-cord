@@ -36,6 +36,12 @@ var (
 
 func getAMQPOptions(logger *logging.Logger, config *libs.Config) {
 
+    config.TypeConfig = libs.NewAMPQConfig()
+    if *CONFIGFILE != "" {
+        if err := libs.LoadConfigFromFile(*CONFIGFILE, config); err != nil {
+            logger.Error.Fatal(err)
+        }
+    }
     amqpConfig := config.TypeConfig.(*libs.AMQPConfig)
 
     // Assign options to config
@@ -81,7 +87,6 @@ func getAMQPOptions(logger *logging.Logger, config *libs.Config) {
         amqpConfig.Exchanges = bindExch
     }
     logger.Debug.Printf("%s\n", config)
-    //os.Exit(1)
 }
 
 func getReqRepOptions(logger *logging.Logger, config *libs.Config) {
@@ -212,12 +217,6 @@ func Init(logger *logging.Logger) *libs.Config {
     logger.Warning.Printf("Nurv Type: %s\n", config.NurvType)
     switch(config.NurvType) {
         case "amqp":
-            config.TypeConfig = libs.NewAMPQConfig()
-            if *CONFIGFILE != "" {
-                if err := libs.LoadConfigFromFile(*CONFIGFILE, config); err != nil {
-                    logger.Error.Fatal(err)
-                }
-            }
             getAMQPOptions(logger, config)
             break
         case "reqp":
