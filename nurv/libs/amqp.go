@@ -8,21 +8,20 @@ import(
 )
 
 
-type AMQPCallback func(<-chan amqp.Delivery, chan error, *logging.Logger, *zmq.Socket)
+type AMQPCallback func(<-chan amqp.Delivery, chan error, *logging.Logger, *zmq.Socket, string)
 
 type AMQPInput struct {
+    AMQPConfig
     conn      *amqp.Connection
     channel   *amqp.Channel
-    queueName string
-    tag       string
     done      chan error
-    logger *logging.Logger
+    logger    *logging.Logger
 }
 
-func (c *AMQPInput) connect(amqpURI string) error {
+func (c *AMQPInput) connect() error {
     var err error
-    c.logger.Debug.Printf("Dialing %q...\n", amqpURI)
-    c.conn, err = amqp.Dial(amqpURI)
+    c.logger.Debug.Printf("Dialing %q...\n", c.URI)
+    c.conn, err = amqp.Dial(c.URI)
     if err != nil {
         return err
     }
@@ -34,48 +33,39 @@ func (c *AMQPInput) connect(amqpURI string) error {
     c.channel, err = c.conn.Channel()
     return err
 }
+func NewAMQPInput(config *AMQPConfig, logger *logging.Logger) (*AMQPInput, error) {
 
-func NewAMQPInput(amqpURI string, bindExch []string, exchangeType, queueName, key, ctag string, logger *logging.Logger) (*AMQPInput, error) {
-    c := &AMQPInput{
-        conn:    nil,
-        channel: nil,
-        queueName: queueName,
-        tag:     ctag,
-        done:    make(chan error),
-        logger: logger,
-    }
+    c := &AMQPInput{*config, nil, nil, make(chan error), logger,}
 
-    var err error
-
-    err = c.connect(amqpURI)
+    err := c.connect()
     if err != nil {
         return c, err
     }
-
     queue, err := c.channel.QueueDeclare(
-        queueName, // name of the queue
-        true,      // durable
-        false,     // delete when usused
-        false,     // exclusive
-        false,     // noWait
-        nil,       // arguments
+        c.QueueName, // name of the queue
+        true,        // durable
+        false,       // delete when usused
+        false,       // exclusive
+        false,       // noWait
+        nil,         // arguments
     )
+
     if err != nil {
         return nil, fmt.Errorf("Queue Declare: %s", err)
     }
 
     c.logger.Warning.Printf("Queue: %q; Messages: %d; Consumers: %d; Routing key: %s\n",
-        queue.Name, queue.Messages, queue.Consumers, key)
+        queue.Name, queue.Messages, queue.Consumers, c.RoutingKey)
 
     // bind to multiples
-    c.BindToExchanges(bindExch, key, queueName)
+    c.BindToExchanges()
     return c, nil
 }
 
-func (c *AMQPInput) Start(callback AMQPCallback, sock *zmq.Socket) error {
+func (c *AMQPInput) Start(callback AMQPCallback, sock *zmq.Socket, defaultNamespace string) error {
     deliveries, err := c.channel.Consume(
-        c.queueName,
-        c.tag,      // consumerTag,
+        c.QueueName,
+        c.ConsumerTag,      // consumerTag,
         false,      // noAck
         false,      // exclusive
         false,      // noLocal
@@ -86,26 +76,26 @@ func (c *AMQPInput) Start(callback AMQPCallback, sock *zmq.Socket) error {
         return err
     }
 
-    go callback(deliveries, c.done, c.logger, sock)
+    go callback(deliveries, c.done, c.logger, sock, defaultNamespace)
     return nil
 }
 
-func (c *AMQPInput) BindToExchanges(exchanges []string, key string, queueName string) {
+func (c *AMQPInput) BindToExchanges() {
     success := 0
-    for _, exch := range exchanges {
+    for _, exch := range c.Exchanges {
         c.logger.Debug.Printf("Binding to exchange: %s...\n", exch)
         err := c.channel.QueueBind(
-            queueName, // name of the queue
-            key,        // routingKey
-            exch,   // exchange sourceExchange
-            false,      // noWait
-            nil,        // arguments
+            c.QueueName,  // name of the queue
+            c.RoutingKey, // routingKey
+            exch,         // exchange sourceExchange
+            false,        // noWait
+            nil,          // arguments
         )
         if err != nil {
             c.logger.Error.Printf("Could not bind to queue: %s\n", err)
             continue
         }
-        c.logger.Warning.Printf("Queue: %s <= bound to Exchange: %s\n", queueName, exch)
+        c.logger.Warning.Printf("Queue: %s <= bound to Exchange: %s\n", c.QueueName, exch)
         success++
     }
     if success == 0 {
@@ -114,15 +104,13 @@ func (c *AMQPInput) BindToExchanges(exchanges []string, key string, queueName st
 }
 
 func (c *AMQPInput) Shutdown() error {
-    // will close() the deliveries channel
-    if err := c.channel.Cancel(c.tag, true); err != nil {
+    if err := c.channel.Cancel(c.ConsumerTag, true); err != nil {
         return fmt.Errorf("AMQPInput cancel failed: %s", err)
     }
-
+    // will close() the deliveries channel
     if err := c.conn.Close(); err != nil {
         return fmt.Errorf("AMQPInput connection close error: %s", err)
     }
-
     defer c.logger.Warning.Printf("AMQP shutdown complete!\n")
     // wait for handle() to exit
     return <-c.done

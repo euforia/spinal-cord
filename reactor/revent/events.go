@@ -4,6 +4,7 @@ import(
     "encoding/json"
     "io/ioutil"
     "os"
+    "time"
 )
 
 type Event struct {
@@ -13,12 +14,28 @@ type Event struct {
     Timestamp interface{}          `json:"timestamp"`
 }
 
+func NewEvent(ns, etype string, payload map[string]interface{}) *Event {
+    return &Event{
+        Namespace: ns,
+        Type: etype,
+        Payload: payload,
+        Timestamp: float64(time.Now().UnixNano())/1000000000,}
+}
+
 func (e *Event) WriteToFile(filepath string, perms os.FileMode) error {
     data, err := json.MarshalIndent(&e, "", "  ")
     if err != nil {
         return err
     }
     return ioutil.WriteFile(filepath, data, perms)
+}
+
+func (e *Event) JsonString() (string, error) {
+    bytes, err := json.Marshal(e)
+    if err != nil {
+        return "", err
+    }
+    return string(bytes), nil
 }
 
 func LoadEvent(filepath string) (Event, error) {
