@@ -1,144 +1,104 @@
 package main
 
-import(
-    "flag"
-    "fmt"
-    "os"
-    "net/http"
-    "strings"
-    "github.com/euforia/spinal-cord/spinal-cord/libs"
-    "github.com/euforia/spinal-cord/logging"
-    "github.com/euforia/spinal-cord/reactor"
-    "github.com/euforia/spinal-cord/reactor/handler"
-    "github.com/euforia/spinal-cord/reactor/task"
-    "github.com/euforia/spinal-cord/web"
+import (
+	"flag"
+	"fmt"
+	"github.com/euforia/spinal-cord/config"
+	"github.com/euforia/spinal-cord/logging"
+	"github.com/euforia/spinal-cord/reactor"
+	"github.com/euforia/spinal-cord/reactor/task"
+	spinalio "github.com/euforia/spinal-cord/spinal-cord/io"
+	"github.com/euforia/spinal-cord/web"
+
+	"os"
 )
 
-const SPINAL_CORD_VERSION string = "0.0.3"
-
-var (
-    I_SPINAL_CORD_VERSION = flag.Bool("version", false, "Show version")
-    // worker connection to task server //
-    WORKER           = flag.Bool("worker", false, "Start worker")
-    TASK_CONNECT_URI = flag.String("task-server-uri", "tcp://127.0.0.1:44444", "Worker connection to task server")
-
-    // subreactor connection to spinal cord //
-    //PSUB_CONNECT_URI = flag.String("psub-server-uri", "tcp://127.0.0.1:55000", "Spinal cord server")
-    PSUB_CONNECT_URI string
-
-    SP_LOGLEVEL      = flag.String("log-level", "trace", "Log level")
-    HANDLERS_DIR     = flag.String("handlers-dir", "", "Directory to store handlers. (required)")
-
-    HTTP_LISTEN_URI = flag.String("http-listen-addr", ":8080", "HTTP server")
-    WEBROOT         = flag.String("webroot", "", "HTTP server web root")
-
-    FEED_LISTEN_URI = flag.String("feed-listen-addr", "tcp://*:45454", "Input feed server")
-    TASK_LISTEN_URI = flag.String("task-listen-addr", "tcp://*:44444", "Task server")
-    PSUB_LISTEN_URI = flag.String("psub-listen-addr", "tcp://*:55000", "Publishing server")
-    REQP_LISTEN_URI = flag.String("reqp-listen-addr", "tcp://*:55055", "Request/Response server")
-)
-
-func InitFlags(logger *logging.Logger) {
-    flag.Parse()
-
-    if *I_SPINAL_CORD_VERSION {
-        fmt.Println(SPINAL_CORD_VERSION)
-        os.Exit(0)
-    }
-
-    err := logger.SetLogLevel(*SP_LOGLEVEL)
-    if err != nil {
-        logger.Error.Fatal(err)
-    }
-
-    if *HANDLERS_DIR == "" {
-        flag.PrintDefaults()
-        logger.Error.Fatal("Handler directory required! (-handlers-dir)")
-    }
-    _, err = os.Stat(*HANDLERS_DIR)
-    if err != nil {
-        logger.Error.Fatalf("Could not open handlers directory: '%s'; Reason: %s\n", *HANDLERS_DIR, err)
-    }
-
-    pHostP := strings.Split(*PSUB_LISTEN_URI, ":")
-    if pHostP[1] == "//*" {
-        PSUB_CONNECT_URI = fmt.Sprintf("%s://127.0.0.1:%s", pHostP[0], pHostP[2])
-    } else {
-        PSUB_CONNECT_URI = *PSUB_LISTEN_URI
-    }
-    logger.Debug.Printf("Pub/Sub connect URI set: %s\n", PSUB_CONNECT_URI)
-
-    if *WEBROOT != "" {
-        _, err := os.Stat(*WEBROOT)
-        if err != nil {
-            logger.Error.Fatalf("Could not open webroot: '%s'; Reason: %s\n", *WEBROOT, err)
-        }
-    }
+func PrintVersion() {
+	if PRE_RELEASE_VERSION == "" {
+		fmt.Println(VERSION)
+	} else {
+		fmt.Printf("%s-%s\n", VERSION, PRE_RELEASE_VERSION)
+	}
 }
 
-func StartWebService(logger *logging.Logger) {
-    mgr := handler.NewHandlersManager(*HANDLERS_DIR, logger)
+func initFlags() (*logging.Logger, string, *config.TaskWorkerConfig) {
+	var (
+		printVersion = flag.Bool("version", false, "Show version")
+		logLevel     = flag.String("log-level", "trace", "Log level")
 
-    h := web.NewRESTRouter("/api/ns", "*", logger) // prefix, default acl, logger
-    h.Register("/",                            web.NewNamespaceHandle(mgr))
-    h.Register("/namespace",                   web.NewEventTypeHandle(mgr))
-    h.Register("/namespace/eventType",         web.NewEventTypeHandlersHandle(mgr))
-    h.Register("/namespace/eventType/handler", web.NewEventHandlerHandle(mgr))
+		workerMode                 = flag.Bool("worker", false, "Start in worker mode")
+		workerHandlersDir          = flag.String("handlers-dir", "data", "Directory to store handlers.")
+		workerSpinalCordUri string = "tcp://127.0.0.1:44444"
 
-    http.Handle("/api/ns/", h)
+		configFile = flag.String("config", "spinal-cord.toml", "Configuration file")
+	)
+	flag.Parse()
 
-    http.Handle("/", http.FileServer(http.Dir(*WEBROOT)))
+	logger := logging.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 
-    logger.Warning.Printf("Starting web service on: %s\n", *HTTP_LISTEN_URI)
-    logger.Error.Fatal(http.ListenAndServe(*HTTP_LISTEN_URI, nil))
+	if *printVersion {
+		PrintVersion()
+		os.Exit(0)
+	}
+
+	err := logger.SetLogLevel(*logLevel)
+	if err != nil {
+		logger.Error.Fatalf("%s\n", err)
+	}
+
+	if *workerMode {
+		if spUri := flag.Arg(flag.NArg() - 1); spUri != "" {
+			workerSpinalCordUri = spUri
+		}
+	}
+	return logger, *configFile, &config.TaskWorkerConfig{*workerMode, *workerHandlersDir, workerSpinalCordUri}
 }
 
-func StartSpinalCord(logger *logging.Logger, pubChan chan string) {
-    /* load input feed service */
-    go func(ch chan string) {
-        reqRep := libs.NewInputService("PULL", *FEED_LISTEN_URI, logger)
-        reqRep.Start(ch)
-    }(pubChan)
-
-    /* load default request/response service */
-    go func(ch chan string) {
-        reqRep := libs.NewInputService("REP", *REQP_LISTEN_URI, logger)
-        reqRep.Start(ch)
-    }(pubChan)
-
-    /* start pub/sub server */
-    go func(ch chan string) {
-        pubSubServer := libs.NewPubSubServer(*PSUB_LISTEN_URI, logger)
-        pubSubServer.Start(ch)
-    }(pubChan)
+func startTaskWorker(cfg *config.TaskWorkerConfig, logger *logging.Logger) {
+	worker, err := task.NewTaskWorker(cfg.SpinalCordUri, cfg.HandlersDir, logger)
+	if err != nil {
+		logger.Error.Fatalf("Failed to instantiate task worker: %s\n", err)
+	}
+	worker.Start()
 }
 
-func StartSubreactor(logger *logging.Logger) {
-    sreactor := reactor.NewSubReactor(PSUB_CONNECT_URI, *TASK_LISTEN_URI, *HANDLERS_DIR, logger)
-    sreactor.Start(true) // true = create samples
+func startSubreactor(cfg *config.SpinalCordConfig, logger *logging.Logger) {
+
+	sreactor, err := reactor.NewSubReactor(cfg, logger)
+	if err != nil {
+		logger.Error.Printf("FAILED to start reactor: %s\n", err)
+		return
+	}
+	sreactor.Start(cfg.Reactor.CreateSamples) // true = create samples
+}
+
+func loadConfig(cfgfile string, logger *logging.Logger) *config.SpinalCordConfig {
+	cfg, err := config.LoadConfigFromTomlFile(cfgfile)
+	if err != nil {
+		logger.Error.Fatalf("%s", err)
+	}
+	if err := cfg.Validate(); err != nil {
+		logger.Error.Fatalf("%s\n", err)
+	}
+	return cfg
 }
 
 func main() {
 
-    var logger = logging.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+	LOGGER, CONFIG_FILE, WORKER_CONFIG := initFlags()
 
-    InitFlags(logger)
+	if WORKER_CONFIG.WorkerMode {
+		startTaskWorker(WORKER_CONFIG, LOGGER)
+	} else {
 
-    if *WORKER {
+		cfg := loadConfig(CONFIG_FILE, LOGGER)
 
-        worker := task.NewTaskWorker(*TASK_CONNECT_URI, *HANDLERS_DIR, logger)
-        worker.Start()
+		ioMgr := spinalio.NewIOManager(LOGGER)
+		ioMgr.LoadIO(cfg, true)
 
-    } else {
+		coreWebSvc := web.NewCoreWebService(cfg, LOGGER)
+		coreWebSvc.Start()
 
-        pubSubChan := make(chan string)
-        StartSpinalCord(logger, pubSubChan) // async
-        if *WEBROOT != "" {
-            go StartWebService(logger)
-        } else {
-            logger.Warning.Println("Web Service not starting. Webroot not provided!")
-        }
-        StartSubreactor(logger)
-    }
+		startSubreactor(cfg, LOGGER)
+	}
 }
-
