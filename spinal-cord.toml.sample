@@ -1,0 +1,87 @@
+[core]
+handlers_dir = "data"
+log_level = "trace"
+
+    [core.web]
+    webroot = "webroot"
+    port = 8080
+
+    [core.publisher]
+    enabled = true
+    port = 55000
+    type ="zeromq"
+        
+        [core.publisher.config]
+        type = "PUB"
+
+
+###
+# These are protocols used to feed into the event system.
+# i.e. Mechanisms to dispatch events.
+###
+[inputs]
+    
+    [inputs.zpull]
+    enabled = true
+    type = "zeromq"
+    port = 45454
+        
+        [inputs.zpull.config]
+        type = "PULL"
+
+
+    [inputs.zrep]
+    enabled = true
+    type = "zeromq"
+    port = 55055
+        
+        [inputs.zrep.config]
+        type = "REP"
+
+
+    [inputs.http]
+    enabled = true
+    type = "http"
+        
+        [inputs.http.config]
+        endpoint = "/api/event"
+
+###
+# All inputs get aggregated to this output.  There should
+# only be one output for now. 
+# ** This should not need to be changed. **
+###
+[outputs]
+
+    [outputs.zpub]
+    enabled = true
+    type = "zeromq"
+    port = 55000
+
+        [outputs.zpub.config]
+        type = "PUB"
+
+
+## event reactor
+[reactor]
+enabled = true
+port = 44444
+create_samples = true
+
+    [reactor.spinalcord]
+    uri = "tcp://127.0.0.1:55000"
+    type = "SUB"
+    subscriptions = []
+
+
+## websocket
+[websocket]
+enabled = false
+port = 8080
+endpoint = "/data"
+
+    [websocket.spinalcord]
+    uri = "tcp://127.0.0.1:55000"
+    type = "SUB"
+    subscriptions = []
+    

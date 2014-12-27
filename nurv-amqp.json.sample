@@ -1,0 +1,18 @@
+{
+    "namespace": "openstack",
+    "decoder": "OpenStackAMQPDecoder",
+    "type": "amqp",
+    "type_config": {
+        "uri"        : "amqp://guest:guest@openstack.rackspace.com:5672/",
+        "queue_name" : "spinalcord.notifications.info",
+        "routing_key": "notifications.info",
+        "exchanges"  : ["keystone","nova","neutron"]
+    },
+    "synapse": {
+        "spinal_uri": "tcp://localhost:45454",
+        "type": "zpush",
+        "config": {
+            "type": "PUSH"
+        }
+    }
+}
