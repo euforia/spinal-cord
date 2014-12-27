@@ -11,10 +11,12 @@ type SynapseType string
 const (
 	SYN_TYPE_ZPUSH SynapseType = "zpush"
 	SYN_TYPE_ZREQ  SynapseType = "zreq"
+	SYN_TYPE_ZSUB  SynapseType = "zsub"
 )
 
 type ISynapse interface {
 	Fire(*revent.Event) error
+	Receive() (*revent.Event, error)
 }
 
 func LoadSynapse(synCfg config.SynapseConfig) (ISynapse, error) {
@@ -23,6 +25,8 @@ func LoadSynapse(synCfg config.SynapseConfig) (ISynapse, error) {
 		return NewZMQSynapse(synCfg)
 	case SYN_TYPE_ZREQ:
 		return NewZMQSynapse(synCfg)
+	case SYN_TYPE_ZSUB:
+		return NewZMQSubscriberSynapse(synCfg)
 	default:
 		return nil, fmt.Errorf("Synapse type not supported: %s", synCfg.Type)
 	}

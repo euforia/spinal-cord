@@ -1,7 +1,7 @@
 package synapse
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"github.com/euforia/spinal-cord/config"
 	//"github.com/euforia/spinal-cord/logging"
 	"fmt"
@@ -15,9 +15,7 @@ type ZMQSynapse struct {
 }
 
 func NewZMQSynapse(cfg config.SynapseConfig) (*ZMQSynapse, error) {
-	//func NewZMQSynapse(ztype string, uri string) (*ZMQSynapse, error) {
 	var (
-		//sock *zmq.Socket
 		syn ZMQSynapse = ZMQSynapse{}
 		err error
 	)
@@ -36,25 +34,24 @@ func NewZMQSynapse(cfg config.SynapseConfig) (*ZMQSynapse, error) {
 		return &syn, err
 	}
 
-	if err = syn.zsock.Connect(cfg.SpinalUri); err != nil {
+	if err = syn.zsock.Connect(cfg.URI); err != nil {
 		return &syn, err
 	}
-	//syn.zsock = sock
 	return &syn, nil
 }
 
+func (s *ZMQSynapse) Receive() (*revent.Event, error) {
+	var e *revent.Event
+	return e, fmt.Errorf("Fire only synapse")
+}
+
 func (s *ZMQSynapse) Fire(event *revent.Event) error {
-	/*
-		if s.ztype == "REQ" {
-			defer s.Close()
-		}
-	*/
+
 	msg, err := event.JsonString()
 	if err != nil {
 		return err
 	}
 	d, err := s.zsock.Send(msg, 0)
-	//resp, err := s.zsock.Recv(0)
 	if err != nil {
 		return err
 	}
@@ -68,13 +65,101 @@ func (s *ZMQSynapse) Fire(event *revent.Event) error {
 			return err
 		}
 	}
-	//fmt.Println(msg)
-	//return resp, nil
 	return nil
 }
 
 func (s *ZMQSynapse) Close() {
 	s.zsock.Close()
+}
+
+type ZMQSubscriberSynapse struct {
+	ZMQSynapse
+}
+
+func NewZMQSubscriberSynapse(cfg config.SynapseConfig) (*ZMQSubscriberSynapse, error) {
+	var (
+		zsubSyn = ZMQSubscriberSynapse{}
+		err     error
+	)
+	zsubSyn.ztype = "SUB"
+	zsubSyn.zsock, err = zmq.NewSocket(zmq.SUB)
+	if err != nil {
+		return &zsubSyn, err
+	}
+	if err = zsubSyn.zsock.Connect(cfg.URI); err != nil {
+		return &zsubSyn, err
+	}
+	fmt.Printf("%#v\n", cfg)
+
+	mcfg, ok := cfg.TypeConfig.(map[string]interface{})
+	if !ok {
+		return &zsubSyn, fmt.Errorf("invalid config type: %s", cfg.TypeConfig)
+	}
+
+	tcfg, err := zsubSyn.getTypeConfig(mcfg)
+	if err != nil {
+		return &zsubSyn, err
+	}
+
+	zsubSyn.setSubscriptions(tcfg.Subscriptions)
+
+	return &zsubSyn, nil
+}
+
+func (z *ZMQSubscriberSynapse) getTypeConfig(ifc map[string]interface{}) (config.RecvSynapseConfig, error) {
+	var (
+		r  = config.RecvSynapseConfig{}
+		ok bool
+	)
+
+	r.Type, ok = ifc["type"].(string)
+	if !ok {
+		return r, fmt.Errorf("invalid config type: %s", ifc["type"])
+	}
+
+	subs, ok := ifc["subscriptions"].([]interface{})
+	if !ok {
+		return r, fmt.Errorf("invalid config type: %s", ifc["subscriptions"])
+	}
+	r.Subscriptions = make([]string, len(subs))
+	for i, s := range subs {
+		str, ok := s.(string)
+		if !ok {
+			return r, fmt.Errorf("invalid config type: %s", s)
+		}
+		r.Subscriptions[i] = str
+	}
+	return r, nil
+}
+
+func (z *ZMQSubscriberSynapse) setSubscriptions(subs []string) {
+	if len(subs) > 0 {
+		for _, s := range subs {
+			z.zsock.SetSubscribe(s)
+		}
+	} else {
+		z.zsock.SetSubscribe("")
+	}
+}
+
+func (z *ZMQSubscriberSynapse) Receive() (*revent.Event, error) {
+	var (
+		evt revent.Event
+		err error
+		b   []byte
+	)
+
+	if b, err = z.zsock.RecvBytes(0); err == nil {
+		if err = json.Unmarshal(b, &evt); err == nil {
+			return &evt, nil
+		}
+		return &evt, err
+	}
+	return &evt, err
+}
+
+func (z *ZMQSubscriberSynapse) Fire(evt *revent.Event) error {
+	return nil
 }
 
 /*

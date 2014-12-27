@@ -53,7 +53,7 @@ enabled = true
 port = 44444
 create_samples = true
 
-    [reactor.spinalcord]
+    [reactor.synapse]
     uri = "tcp://127.0.0.1:55000"
     type = "SUB"
     subscriptions = []
@@ -65,7 +65,7 @@ enabled = false
 port = 8080
 endpoint = "/data"
 
-    [websocket.spinalcord]
+    [websocket.synapse]
     uri = "tcp://127.0.0.1:55000"
     type = "SUB"
     subscriptions = []

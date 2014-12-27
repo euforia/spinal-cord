@@ -8,10 +8,10 @@ import (
 )
 
 type SpinalCordConfig struct {
-	Core   CoreConfig          `json:"core"`
-	Inputs map[string]IOConfig `json:"inputs"`
-	//Outputs map[string]IOConfig `json:"outputs"`
-	Reactor ReactorConfig `json:"reactor"`
+	Core      CoreConfig          `json:"core"`
+	Inputs    map[string]IOConfig `json:"inputs"`
+	Reactor   ReactorConfig       `json:"reactor"`
+	Websocket WebsocketConfig     `json:"websocket"`
 }
 
 func (s *SpinalCordConfig) Validate() error {
@@ -31,19 +31,6 @@ func (s *SpinalCordConfig) Validate() error {
 		}
 	}
 	return nil
-}
-
-type ReactorConfig struct {
-	Enabled       bool                    `toml:"enabled" json:"enabled"`
-	Port          int                     `toml:"port" json:"port"`
-	CreateSamples bool                    `toml:"create_samples" json:"create_samples"`
-	SpinalCord    ReactorSpinalCordConfig `json:"spinalcord"`
-}
-
-type ReactorSpinalCordConfig struct {
-	URI           string   `toml:"uri" json:"uri"`
-	Type          string   `toml:"type" json:"type"`
-	Subscriptions []string `toml:"subscriptions" json:"subscriptions"`
 }
 
 type CoreWebConfig struct {

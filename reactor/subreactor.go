@@ -9,11 +9,13 @@ import (
 	"github.com/euforia/spinal-cord/reactor/handler"
 	"github.com/euforia/spinal-cord/reactor/task"
 	revent "github.com/euforia/spinal-cord/revent/v2"
+	"github.com/euforia/spinal-cord/synapse"
 	zmq "github.com/pebbe/zmq3"
 )
 
 type SubReactor struct {
-	Aggregator *zmq.Socket
+	recvSynapse synapse.ISynapse
+
 	TaskServer *zmq.Socket
 
 	handlersMgr *handler.HandlersManager
@@ -22,34 +24,17 @@ type SubReactor struct {
 }
 
 func NewSubReactor(cfg *config.SpinalCordConfig, logger *logging.Logger) (*SubReactor, error) {
-	//func NewSubReactor(aggrUri string, listenAddr string, handlersDir string, logger *logging.Logger) *SubReactor {
 	/* listen for published messages */
 	var (
 		sreactor SubReactor = SubReactor{}
 		err      error
 	)
+
+	if sreactor.recvSynapse, err = synapse.LoadSynapse(cfg.Reactor.Synapse); err != nil {
+		return &sreactor, err
+	}
 	sreactor.handlersMgr = handler.NewHandlersManager(cfg.Core.HandlersDir, logger)
 	sreactor.logger = logger
-
-	switch cfg.Reactor.SpinalCord.Type {
-	case "SUB":
-		sreactor.Aggregator, err = zmq.NewSocket(zmq.SUB)
-		if err != nil {
-			return &sreactor, err
-		}
-		sreactor.Aggregator.Connect(cfg.Reactor.SpinalCord.URI)
-		if len(cfg.Reactor.SpinalCord.Subscriptions) <= 0 {
-			sreactor.Aggregator.SetSubscribe("")
-		} else {
-			for _, s := range cfg.Reactor.SpinalCord.Subscriptions {
-				sreactor.Aggregator.SetSubscribe(s)
-			}
-		}
-		logger.Warning.Printf("Connected to publisher: %s\n", cfg.Reactor.SpinalCord.URI)
-		break
-	default:
-		return &sreactor, fmt.Errorf("type not supported: %s", cfg.Reactor.SpinalCord.Type)
-	}
 
 	/* task worker server */
 	if sreactor.TaskServer, err = zmq.NewSocket(zmq.PUSH); err != nil {
@@ -73,28 +58,6 @@ func (s *SubReactor) Start(createSamples bool) {
 	s.startPushingToWorkers(commChan)
 }
 
-func (s *SubReactor) decodeMessage(msg []string) (revent.Event, error) {
-	s.logger.Trace.Printf("Attempting to decode: %v\n", msg)
-	var event revent.Event
-	switch len(msg) {
-	case 1:
-		err := json.Unmarshal([]byte(msg[0]), &event)
-		if err != nil {
-			return event, err
-		}
-		break
-	case 2:
-		err := json.Unmarshal([]byte(msg[1]), &event)
-		if err != nil {
-			return event, err
-		}
-		break
-	default:
-		return event, errors.New("Invalid message length")
-	}
-	return event, nil
-}
-
 func (s *SubReactor) assembleTask(evtBytes []byte, evtHandler handler.EventHandler) (string, error) {
 	hdlr, _ := evtHandler.Handler()
 
@@ -116,7 +79,6 @@ func (s *SubReactor) startPushingToWorkers(ch chan revent.Event) {
 			s.logger.Error.Println("Pre-handler:", err)
 			continue
 		}
-		//s.logger.Trace.Printf("Payload: %s\n", string(bytes))
 
 		handlers := s.handlersMgr.GetHandlers(event.Namespace, event.Type)
 
@@ -138,27 +100,21 @@ func (s *SubReactor) startPushingToWorkers(ch chan revent.Event) {
 func (s *SubReactor) startConsumingFromAggregator(ch chan revent.Event, createSamples bool) {
 	for {
 		// Get event from zmq PUB queue //
-		msg, err := s.Aggregator.RecvMessage(0)
+		evt, err := s.recvSynapse.Receive()
 		if err != nil {
-			s.logger.Error.Println("RecvMessage:", err)
-			continue
-		}
-		// Decode event to datastructure //
-		zEvent, err := s.decodeMessage(msg)
-		if err != nil {
-			s.logger.Error.Println("decodeMessage:", err)
+			s.logger.Error.Println("Receive:", err)
 			continue
 		}
 
-		_, executable := s.handlersMgr.CheckEventPath(zEvent.Namespace, zEvent.Type)
+		_, executable := s.handlersMgr.CheckEventPath(evt.Namespace, evt.Type)
 		if createSamples {
-			s.handlersMgr.CheckSampleEvent(zEvent)
+			s.handlersMgr.CheckSampleEvent(*evt)
 		}
 
-		s.logger.Trace.Printf("Approved for execution: %v\n", zEvent)
+		s.logger.Trace.Printf("Approved for execution: %v\n", evt)
 		if executable {
 			// Only put event on channel if event path exists as no handlers will be present //
-			ch <- zEvent
+			ch <- *evt
 		}
 	}
 }

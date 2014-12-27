@@ -18,14 +18,22 @@ var testEvent *revent.Event = revent.NewEvent(
 	})
 
 func Test_ZMQSynapse_Fire(t *testing.T) {
-	//s, err := NewZMQSynapse(zmq.PUSH, testSpinalCordUri)
 	s, err := NewZMQSynapse(testSynapseConfig)
 	if err != nil {
-		t.Error(fmt.Sprintf("Failed to create synapse: %s %s", testSynapseConfig.SpinalUri, err))
+		t.Error(fmt.Sprintf("Failed to create synapse: %s %s", testSynapseConfig.URI, err))
 	}
 
 	err = s.Fire(testEvent)
 	if err != nil {
-		t.Errorf("Failed to fire synapse: %s %s", testSynapseConfig.SpinalUri, err)
+		t.Errorf("Failed to fire synapse: %s %s", testSynapseConfig.URI, err)
 	}
+}
+
+func Test_NewZMQSubscriberSynapse(t *testing.T) {
+	s, err := LoadSynapse(testRecvSynapseConfig)
+	if err != nil {
+		t.Errorf("%s", err)
+		t.FailNow()
+	}
+	t.Logf("%#v", s)
 }
