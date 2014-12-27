@@ -26,6 +26,8 @@ func (o *OpenStackAMQPDecoder) Decode(b []byte) (*revent.Event, error) {
 	event.Type = eventV1.Type
 	event.Data = eventV1.Payload
 
+	/* TODO: add custom tags */
+
 	timeStr, ok := eventV1.Timestamp.(string)
 	if !ok {
 		return &event, fmt.Errorf("timestamp not a string: %s", eventV1.Timestamp)

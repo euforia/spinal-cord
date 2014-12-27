@@ -1,4 +1,4 @@
-package handler
+package reactor
 
 import (
 	"crypto/sha1"

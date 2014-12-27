@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"github.com/euforia/spinal-cord/config"
 	"github.com/euforia/spinal-cord/logging"
-	"github.com/euforia/spinal-cord/reactor/handler"
+	"github.com/euforia/spinal-cord/reactor"
 	"net/http"
 )
 
 type CoreWebService struct {
 	listenAddr  string
-	handlersMgr *handler.HandlersManager
+	handlersMgr *reactor.HandlersManager
 	router      *RESTRouter
 	logger      *logging.Logger
 }
@@ -25,7 +25,7 @@ func NewCoreWebService(cfg *config.SpinalCordConfig, logger *logging.Logger) *Co
 
 	return &CoreWebService{
 		listenAddr:  fmt.Sprintf(":%d", cfg.Core.Web.Port),
-		handlersMgr: handler.NewHandlersManager(cfg.Core.HandlersDir, logger),
+		handlersMgr: reactor.NewHandlersManager(cfg.Core.HandlersDir, logger),
 		router:      NewRESTRouter("/api/ns", "*", logger), /* prefix, default acl, logger */
 		logger:      logger,
 	}

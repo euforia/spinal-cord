@@ -1,26 +1,30 @@
-package task
+package reactor
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/euforia/spinal-cord/logging"
-	"github.com/euforia/spinal-cord/reactor/handler"
 	revent "github.com/euforia/spinal-cord/revent/v2"
 	zmq "github.com/pebbe/zmq3"
 )
 
 type TaskWorker struct {
-	taskChan    chan Task
+	/* send tasks received on socket to this channel (go func)*/
+	taskChan chan Task
+	/* collect results on this channel */
+	Results chan map[string]interface{}
+	/* recv tasks on this socket from TaskPusher */
 	client      *zmq.Socket
-	handlersMgr *handler.HandlersManager
+	handlersMgr *HandlersManager
 	logger      *logging.Logger
 }
 
 func NewTaskWorker(taskServerUri string, handlersDir string, logger *logging.Logger) (*TaskWorker, error) {
 	tw := TaskWorker{
 		taskChan:    make(chan Task),
-		handlersMgr: handler.NewHandlersManager(handlersDir, logger),
+		handlersMgr: NewHandlersManager(handlersDir, logger),
 		logger:      logger,
+		Results:     make(chan map[string]interface{}),
 	}
 	/* will receive tasks on this connection */
 	tw.client, _ = zmq.NewSocket(zmq.PULL)
@@ -61,7 +65,7 @@ func (tw *TaskWorker) startReceivingWork(ch chan Task) {
 			continue
 		}
 		tw.logger.Debug.Printf("Received task: %v\n", recvTask)
-		tw.logger.Info.Printf("Queueing - handler: %s...\n", recvTask.TaskHandler.Path)
+		tw.logger.Info.Printf("QUEUEING - Handler: %s...\n", recvTask.TaskHandler.Path)
 		ch <- recvTask
 	}
 }
@@ -83,35 +87,41 @@ func (tw *TaskWorker) runPreExecutionChecks(ctask Task) error {
 	return nil
 }
 
-func (tw *TaskWorker) runHandler(runtask Task) {
-
+//func (tw *TaskWorker) runHandler(runtask Task) {
+func (tw *TaskWorker) runHandler(runtask Task, rsltChan chan map[string]interface{}) {
 	result := runtask.Run(tw.handlersMgr.HandlersDir)
 	val, ok := result["error"]
 	if ok {
 		tw.logger.Error.Printf("FAILED - Handler: %s; Message: %s", runtask.TaskHandler.Path, val)
 	} else {
-		//tw.logger.Info.Printf("Execution complete - handler: %s\n", runtask.TaskHandler.Path)
-		tw.logger.Info.Printf("SUCCESS - Handler: %s => %v", runtask.TaskHandler.Path, result["data"])
+		tw.logger.Info.Printf("SUCCESS - Handler: %s\n", runtask.TaskHandler.Path)
+		tw.logger.Debug.Printf("RESULT - Handler: %s => %v", runtask.TaskHandler.Path, result["data"])
 	}
+	rsltChan <- result
 }
 
-func (tw *TaskWorker) startProcessingWork() {
+func (tw *TaskWorker) startProcessingWork(taskCh chan Task, rsltCh chan map[string]interface{}) {
 	for {
-		task := <-tw.taskChan
+		task := <-taskCh
 		err := tw.runPreExecutionChecks(task)
 		if err != nil {
 			tw.logger.Error.Println(err)
 			continue
 		}
+		tw.logger.Info.Printf("EXECUTING - Handler: %s\n", task.TaskHandler.Path)
 		tw.logger.Debug.Printf("EXECUTING - Handler: %s; Payload: %s\n",
 			task.TaskHandler.Path, task.Payload)
 
-		/* TODO: ?? check spawn count or wait ?? */
-		go tw.runHandler(task)
+		/*
+		 * TODO: ?? check spawn count or wait ??
+		 * May be just set GOMAXPROCS
+		 */
+		go tw.runHandler(task, rsltCh)
+		//go tw.runHandler(task)
 	}
 }
 
 func (tw *TaskWorker) Start() {
 	go tw.startReceivingWork(tw.taskChan)
-	tw.startProcessingWork()
+	go tw.startProcessingWork(tw.taskChan, tw.Results)
 }

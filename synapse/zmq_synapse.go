@@ -89,7 +89,6 @@ func NewZMQSubscriberSynapse(cfg config.SynapseConfig) (*ZMQSubscriberSynapse, e
 	if err = zsubSyn.zsock.Connect(cfg.URI); err != nil {
 		return &zsubSyn, err
 	}
-	fmt.Printf("%#v\n", cfg)
 
 	mcfg, ok := cfg.TypeConfig.(map[string]interface{})
 	if !ok {

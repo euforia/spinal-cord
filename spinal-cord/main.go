@@ -6,7 +6,6 @@ import (
 	"github.com/euforia/spinal-cord/config"
 	"github.com/euforia/spinal-cord/logging"
 	"github.com/euforia/spinal-cord/reactor"
-	"github.com/euforia/spinal-cord/reactor/task"
 	spinalio "github.com/euforia/spinal-cord/spinal-cord/io"
 	"github.com/euforia/spinal-cord/web"
 
@@ -55,11 +54,19 @@ func initFlags() (*logging.Logger, string, *config.TaskWorkerConfig) {
 }
 
 func startTaskWorker(cfg *config.TaskWorkerConfig, logger *logging.Logger) {
-	worker, err := task.NewTaskWorker(cfg.SpinalCordUri, cfg.HandlersDir, logger)
+	worker, err := reactor.NewTaskWorker(cfg.SpinalCordUri, cfg.HandlersDir, logger)
 	if err != nil {
 		logger.Error.Fatalf("Failed to instantiate task worker: %s\n", err)
 	}
 	worker.Start()
+	/* Read results and potentially write out to log file */
+	for {
+		workResult := <-worker.Results
+		if v, ok := workResult["error"]; ok {
+			logger.Error.Printf("RESULT ERROR: %s\n", v)
+		}
+		logger.Info.Printf("Result for handler: %s\n", workResult["handler"])
+	}
 }
 
 func startSubreactor(cfg *config.SpinalCordConfig, logger *logging.Logger) {

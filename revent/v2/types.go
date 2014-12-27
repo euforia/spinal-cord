@@ -13,6 +13,7 @@ type Event struct {
 	Type      string                 `json:"event_type"`
 	Data      map[string]interface{} `json:"data"`
 	Timestamp float64                `json:"timestamp"`
+	Tags      map[string]string      `json:"tags"`
 }
 
 func NewEvent(ns, etype string, data map[string]interface{}) *Event {
@@ -20,7 +21,9 @@ func NewEvent(ns, etype string, data map[string]interface{}) *Event {
 		Namespace: ns,
 		Type:      etype,
 		Data:      data,
-		Timestamp: float64(time.Now().UnixNano()) / 1000000000}
+		Timestamp: float64(time.Now().UnixNano()) / 1000000000,
+		Tags:      make(map[string]string),
+	}
 }
 
 func (e *Event) Validate() error {
