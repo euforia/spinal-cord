@@ -46,21 +46,6 @@ log_level = "trace"
         [inputs.http.config]
         endpoint = "/api/event"
 
-###
-# All inputs get aggregated to this output.  There should
-# only be one output for now. 
-# ** This should not need to be changed. **
-###
-[outputs]
-
-    [outputs.zpub]
-    enabled = true
-    type = "zeromq"
-    port = 55000
-
-        [outputs.zpub.config]
-        type = "PUB"
-
 
 ## event reactor
 [reactor]
